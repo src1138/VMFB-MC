@@ -511,6 +511,10 @@
       {
         "netclass": "GND",
         "pattern": "DIS GND"
+      },
+      {
+        "netclass": "GND",
+        "pattern": "MOTOR GND RES"
       }
     ]
   },
