@@ -5,7 +5,7 @@
   (paper "A4")
 
   (title_block
-    (title "Vending Machine for Birds")
+    (title "Vending Machine For Birds - Microcontroller Controlled")
     (date "2023-12-15")
     (rev "1 V1.0")
   )
