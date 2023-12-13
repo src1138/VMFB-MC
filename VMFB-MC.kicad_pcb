@@ -7287,7 +7287,7 @@
     (stroke (width 0) (type solid)) (fill solid) (layer "Edge.Cuts") (tstamp ef3c1b1d-d13a-4d7c-9364-41e24d47103e))
   (gr_arc (start 124.17999 84.55) (mid 123.17999 83.55) (end 124.17999 82.55)
     (stroke (width 0.15001) (type solid)) (layer "Edge.Cuts") (tstamp f4743e45-7b06-42d6-8c21-0fa3922d9a7c))
-  (gr_text "VMFB-MC MAIN BOARD" (at 132.842 86.36) (layer "B.SilkS") (tstamp 2ee45e3d-ed86-4706-846f-7c6748e97322)
+  (gr_text "VMFB-MC MAIN BOARD" (at 132.715 86.36) (layer "B.SilkS") (tstamp 2ee45e3d-ed86-4706-846f-7c6748e97322)
     (effects (font (size 1 1) (thickness 0.15)) (justify bottom mirror))
   )
   (gr_text "VMFB-MC DEPOSIT SENSOR" (at 143.002 69.088) (layer "B.SilkS") (tstamp 637d38ab-ca20-4de8-960b-b50483b072d4)
