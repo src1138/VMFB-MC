@@ -2578,7 +2578,7 @@
     )
   )
 
-  (symbol (lib_id "Device:R") (at 139.7 101.6 90) (unit 1)
+  (symbol (lib_id "Device:R") (at 139.7 101.6 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 9a35fd93-431f-4ffc-9824-f97e0964c95a)
     (property "Reference" "R14" (at 139.7 104.14 90)
