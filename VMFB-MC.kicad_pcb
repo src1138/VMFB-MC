@@ -3999,7 +3999,7 @@
   (gr_text "OP-AMP\nOR COMP" (at 134.112 91.567 90) (layer "F.SilkS") (tstamp 7d64d0b4-6e13-48bd-a077-8af99936ef6f)
     (effects (font (size 1 1) (thickness 0.15)) (justify bottom))
   )
-  (gr_text "C/M" (at 155.702 114.554 90) (layer "F.SilkS") (tstamp 8d066e4c-43f6-42bd-9cca-26ae6568ff87)
+  (gr_text "C/M" (at 155.702 114.681 90) (layer "F.SilkS") (tstamp 8d066e4c-43f6-42bd-9cca-26ae6568ff87)
     (effects (font (size 1 1) (thickness 0.15)) (justify left bottom))
   )
   (gr_text "5V" (at 111.887 115.951) (layer "F.SilkS") (tstamp a205d999-9184-44da-929d-a8d7fa35018d)
