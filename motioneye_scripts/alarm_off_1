@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# stop recording
+curl http://localhost:7999/1/action/eventend
+

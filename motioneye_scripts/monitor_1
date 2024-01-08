@@ -4,7 +4,7 @@
 # Assign pins
 PIR=27
 SIR=17
-TMR=22
+MTR=11
 EMT=23
 DEP=24 
 DIS=10 
@@ -15,16 +15,16 @@ test -e /sys/class/gpio/gpio$PIR ||
    && echo in > /sys/class/gpio/gpio$PIR/direction)
 test -e /sys/class/gpio/gpio$SIR || 
   (echo $SIR > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$SIR/direction)
+   && echo out > /sys/class/gpio/gpio$SIR/direction)
 test -e /sys/class/gpio/gpio$DEP ||
   (echo $DEP > /sys/class/gpio/export \
    && echo in > /sys/class/gpio/gpio$DEP/direction)
 test -e /sys/class/gpio/gpio$DIS ||
   (echo $DIS > /sys/class/gpio/export \
    && echo in > /sys/class/gpio/gpio$DIS/direction)
-test -e /sys/class/gpio/gpio$TMR || 
-  (echo $TMR > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$TMR/direction)
+test -e /sys/class/gpio/gpio$MTR || 
+  (echo $MTR > /sys/class/gpio/export \
+   && echo out > /sys/class/gpio/gpio$MTR/direction)
 test -e /sys/class/gpio/gpio$EMT ||
   (echo $EMT > /sys/class/gpio/export \
    && echo in > /sys/class/gpio/gpio$EMT/direction)
@@ -35,7 +35,7 @@ prev_valEMT=$(cat /data/log/prev_valEMT)
 # Get the current pin values
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
-valTMR=$(cat /sys/class/gpio/gpio$TMR/value)
+valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
 # Only get the EMT pin value if the sensors are on, else reuse the previous value
 if [ "$valSIR" == "0" ]; then
     valEMT=$(cat /sys/class/gpio/gpio$EMT/value)
@@ -59,10 +59,10 @@ else
     SIR_text="+"
 fi
 
-if [ "$valTMR" == "1" ]; then
-    TMR_text="+"
+if [ "$valMTR" == "1" ]; then
+    MTR_text="+"
 else
-    TMR_text="-"
+    MTR_text="-"
 fi
 
 if [ "$valEMT" == "0" ]; then
@@ -90,6 +90,6 @@ DEPcount=$(grep DEP $VMFB_logfile | grep -c "+")
 DIScount=$(grep DIS $VMFB_logfile | grep -c "+")
 
 # Output to the UI
-echo "PIR$PIR_text$PIRcount|IR$SIR_text|TMR$TMR_text|FEED$EMT_text|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount"
+echo "PIR$PIR_text$PIRcount|IR$SIR_text|MTR$MTR_text|FEED$EMT_text|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount"
 # 1 second delay between executions
 echo 1 1>&2
