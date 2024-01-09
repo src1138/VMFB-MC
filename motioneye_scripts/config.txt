@@ -14,5 +14,5 @@ over_voltage=0
 # staying high on statup
 gpio=11,25=op,dl
 # Set pins 10, 17, 22, 23, 24, 27 to be inputs with pull-ups
-# gpio=10,17,22,23,24,27=ip,pu
+gpio=10,17,22,23,24,27=ip,pu
 

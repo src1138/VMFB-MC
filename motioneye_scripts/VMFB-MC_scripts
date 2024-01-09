@@ -1,0 +1,34 @@
+
+Control and monitoring interface requires 6 GPIO pins
+
+Pins for Raspberry Pi Zero W
+
+Deposit Monitor= 18 (pin 24) (input, PD, high trigger  interrupt)
+Dispense Monitor=19 (pin 10) (input, PD, high trigger  interrupt)
+Motor Control=11 (pin 23) (outut, init low, high to start)
+PIR Monitor=27 (pin 13) (input, PD, high trigger)
+Sensor IR Control=25 (pin 22) (outut, init low, high to enable)
+Feed Level Monitor=23 (pin 16) (input, PD, high trigger)
+
+Configs
+
+config.txt - motioneye config where you can add GPIO pin configurations for startup
+userinit.sh - config file where you can disable HDMI, start scripts and pause motion detection at startup
+
+VMFB Scripts
+
+VMFB_Sensors.sh - enables sensors when the PIR is triggered, logs events for PIR an MT sensors
+VMFB_Deposit-Dispense.py - starts motor when the deposit sensor is triggered, stops it when the dispense sensor is triggered, logs  events
+VMFB_Timeouts.sh - disables sensors X seconds after PIR or Timer is last triggered, shuts off motor X seconds after deposit is last triggered
+VMFB_Timer.sh - dispenses (enables sensors and starts motor) and repeats based on minutes interval set in conf file
+VMFB_PBKA.sh - enables sensor for seconds specified in the conf file and repeats based on minutes interval set in conf file, off stops this, logs  events
+
+Motioneye Scripts
+monitor_1 - shows current state of PIR, Empty, Motor, number of times PIR, Deposit and Dispense are triggered since 00:00 of current day
+down_1 - overlay button to manually dispense a peanut
+alarm_on_1 - overlay button to enable timer
+alarm_off_1 - overlay button to disnable timer
+light_on_1 - overlay button to enable power bank keep-alive
+light_off_1 - overlay button to disnable power bank keep-alive
+
+
