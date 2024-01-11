@@ -27,7 +27,15 @@ prev_valEMT=$(cat /data/log/prev_valEMT)
 
 # Get the current pin values
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
-valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
+
+# if the PIR is on, set SIR pin to high, else it keeps the previous value
+if [ "$valPIR" == "1" ]; then
+    valSIR = 1
+    echo $valSIR >| /sys/class/gpio/gpio$SIR/value
+else
+    valSIR = $prev_valSIR
+fi
+
 # Only get the EMT pin value if the sensors are on, else reuse the previous value
 if [ "$valSIR" == "1" ]; then
     valEMT=$(cat /sys/class/gpio/gpio$EMT/value)
@@ -65,10 +73,12 @@ else
     fi
 fi
 
-if [ "$valEMT" == "0" ]; then
-    EMT_text="-"
-else
-    EMT_text="+"
+if [ "$valSIR" == "1" ]; then
+	if [ "$valEMT" == "0" ]; then
+ 		EMT_text="-"
+	else
+    		EMT_text="+"
+    	fi
 fi
 
 # Log any values that changed since the last execution
@@ -81,11 +91,11 @@ if [ "$valPIR" != "$prev_valPIR" ]; then
 fi
 
 if [ "$valSIR" != "$prev_valSIR" ]; then
-    echo "$dtStamp	IR	$valSIR	$SIR_text">> "$VMFB_logfile"
+    echo "$dtStamp	SIR	$valSIR	$SIR_text">> "$VMFB_logfile"
 fi
 
 if [ "$valEMT" != "$prev_valEMT" ]; then
-    if [ "$valSIR" == "0" ]; then
+    if [ "$valSIR" == "1" ]; then
         echo "$dtStamp	EMT	$valEMT	$EMT_text">> "$VMFB_logfile"
     fi
 fi

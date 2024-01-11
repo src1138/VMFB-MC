@@ -55,13 +55,13 @@ if [ "$targetState"=="1" ]; then
 	# Set the pin to high, wait 1s, then set it back to low
 	echo "1">/sys/class/gpio/gpio$SIRCON/value
 	echo "1">/sys/class/gpio/gpio$MTRCON/value
-	sleep 1
+else
 	echo "0">/sys/class/gpio/gpio$SIRCON/value
 	echo "0">/sys/class/gpio/gpio$MTRCON/value
 	echo "$(date +%F_%X)	TMR	0	END">> "$VMFB_logfile"
 fi
 
-# Trigger timer every hour
-sleep 3600
+# Trigger timer every timer_interval
+sleep timer_interval
 
 done
