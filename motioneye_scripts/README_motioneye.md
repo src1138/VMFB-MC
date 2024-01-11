@@ -1,5 +1,7 @@
 
-Control and monitoring interface requires 6 GPIO pins
+Control and monitoring interface requires 6 GPIO pins - 2 outputs and 4 inputs
+If using a comparator, that input needs pull-up, the rest pull down
+If using op amp, all 4 inputs need pull down
 
 Pins for Raspberry Pi Zero W
 
