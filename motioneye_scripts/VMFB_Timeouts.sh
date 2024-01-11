@@ -32,6 +32,7 @@ pbka_pulse_length=1
 
 #PBKA
 
+# check if PBKA is enabled (PBKA_enable=$(cat /data/log/PBKA_enable == 1) else exit
 # check if PIR is triggering - if so, exit
 
 # PBKA Interval

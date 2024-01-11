@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# check if Timer is enabled (Timer_enable=$(cat /data/log/Timer_enable == 1) else exit
+
 # Assign pins
 SIRCON=25
 MTRCON=11
