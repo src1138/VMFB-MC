@@ -87,16 +87,16 @@ VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 touch "$VMFB_logfile"
 
 if [ "$valPIR" != "$prev_valPIR" ]; then
-    echo "$dtStamp	PIR	$valPIR	$PIR_text">> "$VMFB_logfile"
+    echo "$dtStamp	PIR	$PIR_text">> "$VMFB_logfile"
 fi
 
 if [ "$valSIR" != "$prev_valSIR" ]; then
-    echo "$dtStamp	SIR	$valSIR	$SIR_text">> "$VMFB_logfile"
+    echo "$dtStamp	SIR	$SIR_text">> "$VMFB_logfile"
 fi
 
 if [ "$valEMT" != "$prev_valEMT" ]; then
     if [ "$valSIR" == "1" ]; then
-        echo "$dtStamp	EMT	$valEMT	$EMT_text">> "$VMFB_logfile"
+        echo "$dtStamp	EMT	$EMT_text">> "$VMFB_logfile"
     fi
 fi
 

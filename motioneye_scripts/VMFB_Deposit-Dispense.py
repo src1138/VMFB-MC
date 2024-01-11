@@ -30,7 +30,7 @@ def logDEP(pin=None):
 	if (GPIO.input(DEP) == True):
 		DEPtext = "+"
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP	" + str(GPIO.input(DEP))	+ "	" + DEPtext + "\n")
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP	" + "	" + DEPtext + "\n")
 	# start the dispense motor
 	GPIO.output(MTRCON, 1)
         
@@ -39,7 +39,7 @@ def logDIS(pin=None):
 	if (GPIO.input(DIS) == True):
 		DIStext = "+"
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DIS " + str(GPIO.input(DIS))	+ " " + DIStext + "\n")
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DIS " + " " + DIStext + "\n")
 	# stop the dispense motor
 	GPIO.output(MTRCON, 0)
 	

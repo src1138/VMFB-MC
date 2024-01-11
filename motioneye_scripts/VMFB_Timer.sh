@@ -35,6 +35,8 @@ test -e /sys/class/gpio/gpio$MTRCON ||
 
 while true
 do
+# check if Timer is enabled (Timer_enable=$(cat /data/log/PBKA_enable == 1) else exit
+
 # Get the current time's hours and minutes (ex. 1430 for 2:30pm)
 nowtime=$(date +%H%M)
 
@@ -46,21 +48,14 @@ if [[ "$nowtime" > "$ontime" ]]; then
         targetState="1"
     fi
 fi
-echo "$(date +%F_%X)	$nowtime	$ontime	$offtime"
-
-# Log any values that changed since the last execution
-VMFB_logfile="/data/log/VMFB_$(date +%F).log"
-touch "$VMFB_logfile"
 
 if [ "$targetState"=="1" ]; then
-	echo "$(date +%F_%X)	TMR	1	START">> "$VMFB_logfile"
-	# Set the pin to high, wait 1s, then set it back to low
+	VMFB_logfile="/data/log/VMFB_$(date +%F).log"
+	touch "$VMFB_logfile"
+	echo "$(date +%F_%X)	TMR	START">> "$VMFB_logfile"
+	# Set the sensor IR and motor pins to high
 	echo "1">/sys/class/gpio/gpio$SIRCON/value
 	echo "1">/sys/class/gpio/gpio$MTRCON/value
-else
-	echo "0">/sys/class/gpio/gpio$SIRCON/value
-	echo "0">/sys/class/gpio/gpio$MTRCON/value
-	echo "$(date +%F_%X)	TMR	0	END">> "$VMFB_logfile"
 fi
 
 # Trigger timer every timer_interval
