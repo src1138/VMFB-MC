@@ -21,6 +21,7 @@ pbka_pulse_length=1
 # parse log for last PIR trigger and get datetime
 # subtract last PIR trigger datetime from now
 # if result is >= sensor_timeout, turn sensors off
+#	update previous value file
 # 	log sensor timeout event
 
 # Motor
@@ -28,6 +29,7 @@ pbka_pulse_length=1
 # parse log for last Deposit trigger and get datetime
 # subtract last Deposit trigger datetime from now
 # if result is >= motor_timeout, turn motor off
+#	update previous value file
 # 	log motor timeout event
 
 #PBKA
@@ -46,17 +48,21 @@ pbka_pulse_length=1
 # if sensors are off
 # parse log for last PBKA pulse off event and get datetime - 
 # 	if no PBKA pulse event log for today, turn on sensors
+#		update previous value file
 # 		log PBKA on event
 # 	else subtract pbka_pulse_length from now
 # 		if result is >= pbka_interval, turn on sensors
+#			update previous value file
 # 			log PBKA on event
 
 # if sensors are on
 # parse log for last PBKA pulse on event and get datetime
 # 	if no PBKA pulse event log for today, turn off sensors
+#		update previous value file
 # 		log PBKA off event
 # 	else subtract last PBKA pulse event datetime from now
 # 		if result is >= pbka_pulse_length, turn off sensors
+#			update previous value file
 # 			log PBKA off event
 
 

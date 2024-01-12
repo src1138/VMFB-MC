@@ -41,6 +41,9 @@ if [[ "$nowtime" > "$timer_ontime" ]]; then
 		# Set the sensor IR and motor pins to high
 		echo "1">/sys/class/gpio/gpio$SIRCON/value
 		echo "1">/sys/class/gpio/gpio$MTRCON/value
+		# Update previous value files
+		echo $valSIR >| /data/log/prev_valSIR
+		echo $valMTR >| /data/log/prev_valMTR
 	fi
 fi
 # Trigger timer every timer_interval
