@@ -28,6 +28,14 @@ test -e /sys/class/gpio/gpio$MTR ||
   (echo $MTR > /sys/class/gpio/export \
    && echo out > /sys/class/gpio/gpio$MTR/direction)
 
+while true
+do
+
+# timestamp and logfile for log entries
+dtStamp=$(date +%F_%X)
+VMFB_logfile="/data/log/VMFB_$(date +%F).log"
+touch "$VMFB_logfile"
+
 # Sensors
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
@@ -36,13 +44,23 @@ if [ "$valSIR" == "1" ]; then
 	# check that PIR is not triggering 
 	if [ "$valPIR" == "0" ]; then
 		# parse log for last PIR trigger and get datetime
-		# subtract last PIR trigger datetime from now
-		# if result is >= sensor_timeout, 
+		# if no PIR in today's log 
 			# turn sensors off
 			echo "0" >| /sys/class/gpio/gpio$SIR/value
 			# update previous value file
 			echo "0" >| /data/log/prev_valSIR
 			# log sensor timeout event
+			echo "$dtStamp	SIR	TO">> "$VMFB_logfile"
+		# else subtract last PIR trigger datetime from now (dtStamp)
+			# if result is >= sensor_timeout, 
+				# turn sensors off
+				echo "0" >| /sys/class/gpio/gpio$SIR/value
+				# update previous value file
+				echo "0" >| /data/log/prev_valSIR
+				# log sensor timeout event
+				echo "$dtStamp	SIR	TO">> "$VMFB_logfile"
+			fi
+		fi
 	fi
 fi
 
@@ -50,14 +68,20 @@ fi
 valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
 # check that motor is on
 if [ "$valMTR" == "1" ]; then
-	# parse log for last Deposit trigger and get datetime
-	# subtract last Deposit trigger datetime from now
-	# if result is >= motor_timeout, 
-		# turn motor off
-		echo "0" >| /sys/class/gpio/gpio$MTR/value
-		# update previous value file
-		echo "0" >| /data/log/prev_valMTR
-		# log motor timeout event
+	# parse log for last Deposit or timer trigger and get datetime
+	# grep Deposit|Timer file | tail -1 | awk '{print $1}'
+	# date --date=datetimestring +"%s"
+	# if no deposit or timer trigger in today's log, turn motor off
+	# else subtract last Deposit or timer trigger datetime from now
+		# if result is >= motor_timeout, 
+			# turn motor off
+			echo "0" >| /sys/class/gpio/gpio$MTR/value
+			# update previous value file
+			echo "0" >| /data/log/prev_valMTR
+			# log motor timeout event
+			echo "$dtStamp	MTR	TO">> "$VMFB_logfile"
+		fi
+	fi
 fi
 
 #PBKA
@@ -67,8 +91,9 @@ if [ $(cat /data/log/PBKA_enable == 1) ] then
 
 	# PBKA Interval
 
-	# parse log for last PIR trigger event and get datetime
-	# subtract last PIR trigger datetime from now+pbka_pulse_length
+	# parse log for last PIR or Timer trigger event and get datetime
+	lastPIR=
+	# subtract last PIR or Timer trigger datetime from now+pbka_pulse_length
 	# if result is >= sensor_timeout+pbka_interval, continue, else exit
 
 		# PBKA Pulse
@@ -78,23 +103,25 @@ if [ $(cat /data/log/PBKA_enable == 1) ] then
 			# parse log for last PBKA pulse off event and get datetime - 
 			# if no PBKA pulse event log for today
 				#turn on sensors
-				# update previous value file
 				# log PBKA on event
+				echo "$dtStamp	PBKA	+">> "$VMFB_logfile"
 			# else subtract pbka_pulse_length from now
 				# if result is >= pbka_interval, turn on sensors
-				# update previous value file
 				# log PBKA on event
+				echo "$dtStamp	PBKA	+">> "$VMFB_logfile"
 		else # sensors are on
 			# parse log for last PBKA pulse on event and get datetime
 			# if no PBKA pulse event log for today, turn off sensors
-			# update previous value file
 			# log PBKA off event
+			echo "$dtStamp	PBKA	-">> "$VMFB_logfile"
 			# else subtract last PBKA pulse event datetime from now
 			# if result is >= pbka_pulse_length, turn off sensors
-			# update previous value file
 			# log PBKA off event
+			echo "$dtStamp	PBKA	-">> "$VMFB_logfile"
 		fi
 	fi
 fi
 
-# sleep 1 sec
+sleep 1
+
+done

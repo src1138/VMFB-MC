@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# check if Timer is enabled (Timer_enable=$(cat /data/log/Timer_enable == 1) else exit
-
 # Assign pins
 SIRCON=25
 MTRCON=11
@@ -12,10 +10,6 @@ timer_interval=5400 #90 mins
 timer_ontime="0600" #6:00am
 # time of day for timer to stop
 timer_offtime="1800" #6:00pm
-
-# Set pins 11 and 25 to be outputs driving low to avoid them going high on start up.
-# Add the following line to your /boot/config.txt
-# gpio=11,25=op,dl
  
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$SIRCON ||
@@ -38,7 +32,7 @@ if [ $(cat /data/log/Timemr_enable) == "1" ] then
 		if [[ "$nowtime" < "$timer_offtime" ]]; then
 			VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 			touch "$VMFB_logfile"
-			echo "$(date +%F_%X)	TMR	START">> "$VMFB_logfile"
+			echo "$(date +%F_%X)	TMR	+">> "$VMFB_logfile"
 			# Set the sensor IR and motor pins to high
 			echo "1">/sys/class/gpio/gpio$SIRCON/value
 			echo "1">/sys/class/gpio/gpio$MTRCON/value
