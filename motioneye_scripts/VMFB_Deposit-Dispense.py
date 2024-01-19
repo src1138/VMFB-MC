@@ -29,19 +29,27 @@ def logDEP(pin=None):
 	DEPtext = "-"
 	if (GPIO.input(DEP) == True):
 		DEPtext = "+"
+	else:
+		DEPtext = "-"
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP	" + "	" + DEPtext + "\n")
-	# start the dispense motor
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP	" + DEPtext + "\n")
+	# start the dispense motor and log the event
 	GPIO.output(MTRCON, 1)
+	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	MTR	+\n")
         
 def logDIS(pin=None):
     	DIStext = "-"
 	if (GPIO.input(DIS) == True):
 		DIStext = "+"
+	else:
+		DIStext = "-"
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DIS " + " " + DIStext + "\n")
-	# stop the dispense motor
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DIS	" + DIStext + "\n")
+	# stop the dispense motor and log the event
 	GPIO.output(MTRCON, 0)
+	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	MTR	-\n")
 	
 # We want to know about falling and rising edges for deposit and dispense
 GPIO.add_event_detect(DEP, GPIO.BOTH, logDEP)

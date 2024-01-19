@@ -39,11 +39,13 @@ if [ $(cat /data/log/Timer_enable) == "1" ] then
 			# Update previous value files
 			echo "1" >| /data/log/prev_valSIR
 			echo "1" >| /data/log/prev_valMTR
+			# prevent PBKA from working while sensors are on due to Timer trigger
+			echo "1" >| /data/log/PBKA_hold
 		fi
 	fi
 fi
 
-# Trigger timer every timer_interval
+# Trigger timer every timer_interval (seconds)
 sleep timer_interval
 
 done

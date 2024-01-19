@@ -32,8 +32,10 @@ valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 if [ "$valPIR" == "1" ]; then
     valSIR = 1
     echo $valSIR >| /sys/class/gpio/gpio$SIR/value
+    # prevent PBKA from working while sensors are on due to PIR trigger
+    echo "1" >| /data/log/PBKA_hold
 else
-    valSIR = $prev_valSIR
+    valSIR=$prev_valSIR
 fi
 
 # Only get the EMT pin value if the sensors are on, else reuse the previous value
