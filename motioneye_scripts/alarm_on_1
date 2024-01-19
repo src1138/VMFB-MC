@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# start recording -> enable motion detection, start an event, and disable motion detection
-curl http://localhost:7999/1/detection/start
-curl http://localhost:7999/1/action/eventstart
-curl http://localhost:7999/1/detection/pause
-
+#check if Timer is already enabled
+Timer_enable=$(cat /data/log/Timer_enable)
+if [$Timer_enable != 1] then
+	# enable Timer
+	echo "1" >| /data/log/Timer_enable
+	# log event
+	VMFB_logfile="/data/log/VMFB_$(date +%F).log"
+	touch "$VMFB_logfile"
+	echo "$(date +%F_%X)	TMR	ON">> "$VMFB_logfile"
+fi

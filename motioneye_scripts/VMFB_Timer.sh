@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Assign pins
-SIRCON=25
-MTRCON=11
+SIR=25
+MTR=11
 
 # timer interval between dispenses in seconods
 timer_interval=5400 #90 mins
@@ -12,17 +12,17 @@ timer_ontime="0600" #6:00am
 timer_offtime="1800" #6:00pm
  
 # Verify they are set up, else initialize them
-test -e /sys/class/gpio/gpio$SIRCON ||
-  (echo $SIRCON > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$SIRCON/direction)
-test -e /sys/class/gpio/gpio$MTRCON ||
-  (echo $MTRCON > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$MTRCON/direction)
+test -e /sys/class/gpio/gpio$SIR ||
+  (echo $SIR > /sys/class/gpio/export \
+   && echo out > /sys/class/gpio/gpio$SIR/direction)
+test -e /sys/class/gpio/gpio$MTR ||
+  (echo $MTR > /sys/class/gpio/export \
+   && echo out > /sys/class/gpio/gpio$MTR/direction)
 
 while true
 do
 # check if Timer is enabled 
-if [ $(cat /data/log/Timemr_enable) == "1" ] then
+if [ $(cat /data/log/Timer_enable) == "1" ] then
 
 	# Get the current time's hours and minutes (ex. 1430 for 2:30pm)
 	nowtime=$(date +%H%M)
@@ -34,11 +34,11 @@ if [ $(cat /data/log/Timemr_enable) == "1" ] then
 			touch "$VMFB_logfile"
 			echo "$(date +%F_%X)	TMR	+">> "$VMFB_logfile"
 			# Set the sensor IR and motor pins to high
-			echo "1">/sys/class/gpio/gpio$SIRCON/value
-			echo "1">/sys/class/gpio/gpio$MTRCON/value
+			echo "1">/sys/class/gpio/gpio$SIR/value
+			echo "1">/sys/class/gpio/gpio$MTR/value
 			# Update previous value files
-			echo $valSIR >| /data/log/prev_valSIR
-			echo $valMTR >| /data/log/prev_valMTR
+			echo "1" >| /data/log/prev_valSIR
+			echo "1" >| /data/log/prev_valMTR
 		fi
 	fi
 fi

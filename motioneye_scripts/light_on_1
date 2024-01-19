@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# swap the camera config file and restart motion and the motioneye server
-cp /data/etc/camera-1.conf.enable_camera /data/etc/camera-1.conf
-cp /data/etc/motion.conf.enable_camera /data/etc/motion.conf
-meyectl stopserver -b -c motioneye.conf
-meyectl startserver -b -c motioneye.conf
+#check if PBKA is already enabled
+PBKA_enable=$(cat /data/log/PBKA_enable)
+if [$PBKA_enable != 1] then
+	# disable PBKA
+	echo "1" >| /data/log/PBKA_enable
+	# log event
+	VMFB_logfile="/data/log/VMFB_$(date +%F).log"
+	touch "$VMFB_logfile"
+	echo "$(date +%F_%X)	PBKA	ON">> "$VMFB_logfile"
+fi
