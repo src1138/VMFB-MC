@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# controls timeouts for sensors, motor and PBKA
+# controls timeouts for sensors and motor
 
 # sensor timeout in seconds
 sensor_timeout=30

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# controls the powerbank keep-alive
+# to enable the PBKA, /data/log/PBKA_enable should be set to "1"
+
 # powerbank keep-alive interval in seconds
 pbka_interval=10
 # powerbank keep-alive pulse length in seconds
@@ -22,9 +25,9 @@ VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 touch "$VMFB_logfile"
 
 # check that PBKA is enabled
-if [ $(cat /data/log/PBKA_enable) == 1) ] then
+if [ $(cat /data/log/PBKA_enable) == "1") ] then
 	# check that PBKA is not on hold
-	if [ $(cat /data/log/PBKA_hold) == 0) ] then
+	if [ $(cat /data/log/PBKA_hold) == "0") ] then
 		echo "1" >| /sys/class/gpio/gpio$SIR/value
 		echo "$dtStamp	PBKA	+">> "$VMFB_logfile"
 		sleep $pbka_pulse_length
