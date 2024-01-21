@@ -42,7 +42,7 @@ valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
 if [ "$valSIR" == "1" ]; then
 	# check that PIR is not triggering 
 	if [ "$valPIR" == "0" ]; then
-		# if no PIR in today's log 
+		# if no PIR or Timer event in today's log 
 		if [ $(grep 'PIR\|TIMER' $VMFB_logfile  | grep "+")=="" ] then
 			# turn sensors off
 			echo "0" >| /sys/class/gpio/gpio$SIR/value
@@ -53,7 +53,7 @@ if [ "$valSIR" == "1" ]; then
 			# enable PBKA to work while sensors off due to sensor timeout
 			echo "0" >| /data/log/PBKA_hold
 		else 
-		# parse log for last PIR or Timer trigger and get datetime
+		# parse log for last PIR or Timer event and get datetime
 		lastSensor_event_datetimestring=$(grep 'PIR\|TMR' $VMFB_logfile | grep "+" | tail -1 | awk '{print $1}')
 		lastSensor_datetime=$(date --date=$lastSensor_event_datetimestring +"%s")
 		# subtract last PIR or Timer trigger datetime from now

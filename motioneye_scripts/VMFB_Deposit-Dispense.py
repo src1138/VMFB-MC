@@ -26,7 +26,7 @@ GPIO.output(MTRCON, 0)
 # logging and monitoring routines
 def logDEP(pin=None):
 	# Log the deposit event
-	DEPtext = "-"
+    # Consider making this only trigger on the downstroke - avoiding triggering when jammed
 	if (GPIO.input(DEP) == True):
 		DEPtext = "+"
 	else:
@@ -39,7 +39,8 @@ def logDEP(pin=None):
 		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	MTR	+\n")
         
 def logDIS(pin=None):
-    	DIStext = "-"
+    # Log the dispense event
+    # Consider making this only trigger on the upstroke - avoiding failure to trigger when jammed    
 	if (GPIO.input(DIS) == True):
 		DIStext = "+"
 	else:

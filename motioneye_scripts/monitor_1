@@ -37,7 +37,7 @@ valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
 valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
 # Only get the EMT pin value if the sensors are on, else reuse the previous value
-if [ "$valSIR" == "0" ]; then
+if [ "$valSIR" == "1" ]; then
     valEMT=$(cat /sys/class/gpio/gpio$EMT/value)
 else
     valEMT=$prev_valEMT

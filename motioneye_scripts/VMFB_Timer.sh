@@ -28,8 +28,8 @@ if [ $(cat /data/log/Timer_enable) == "1" ] then
 	nowtime=$(date +%H%M)
 
 	# Swap $ontime and $offtime to disable early and enable late
-	if [[ "$nowtime" > "$timer_ontime" ]]; then
-		if [[ "$nowtime" < "$timer_offtime" ]]; then
+	if [[ "$nowtime" >= "$timer_ontime" ]]; then
+		if [[ "$nowtime" <= "$timer_offtime" ]]; then
 			VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 			touch "$VMFB_logfile"
 			echo "$(date +%F_%X)	TMR	+">> "$VMFB_logfile"
