@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# controls the powerbank keep-alive
+# controls the powerbank keep-alive which turns on the sensors for a moment when the VMFB is idle
 # to enable the PBKA, /data/log/PBKA_enable should be set to "1"
 
 # powerbank keep-alive interval in seconds
