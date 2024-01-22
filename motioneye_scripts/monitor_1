@@ -6,8 +6,8 @@ PIR=27 #RPi ZeroW Pin #13
 SIR=25 #RPi ZeroW Pin #22
 MTR=11 #RPi ZeroW Pin #23
 EMT=23 #RPi ZeroW Pin #16
-DEP=18 #RPi ZeroW Pin #24
-DIS=19 #RPi ZeroW Pin #10
+DEP=24 #RPi ZeroW Pin #18
+DIS=10 #RPi ZeroW Pin #19
  
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$PIR ||
