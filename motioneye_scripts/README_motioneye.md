@@ -5,8 +5,9 @@ If using op amp, all 4 inputs need pull down
 
 Pins for Raspberry Pi Zero W
 
-Deposit Monitor= 18 (pin 24) (input, *PU, high trigger  interrupt)
-Dispense Monitor=19 (pin 10) (input, *PU, high trigger  interrupt)
+RPi Zero W GPIO pins
+Deposit Monitor= 24 (pin 18) (input, *PU, high trigger  interrupt)
+Dispense Monitor=10 (pin 19) (input, *PU, high trigger  interrupt)
 Motor Control=11 (pin 23) (outut, init low, high to start)
 PIR Monitor=27 (pin 13) (input, PD, high trigger)
 Sensor IR Control=25 (pin 22) (outut, init low, high to enable)
