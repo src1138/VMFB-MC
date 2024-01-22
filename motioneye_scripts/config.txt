@@ -13,6 +13,8 @@ over_voltage=0
 # Set pins 11 (MTR) and 25 (SIR) to be outputs driving low to avoid them
 # staying high on statup
 gpio=11,25=op,dl
-# Set pins 18 (Deposit),19 (Dispense),23 (Empty),27 (PIR) to be inputs with pull-ups
-gpio=18,19,23,27=ip,pu
+# Set GPIO pins 23 (Empty),27 (PIR) to be inputs with pull-downs
+# Set GPIO pins 24 (Deposit),10 (Dispense) to be inputs with pull-ups (for comparator - use pull-downs for op amps)
+gpio=23,27=ip,pd
+gpio=24,10=ip,pu
 
