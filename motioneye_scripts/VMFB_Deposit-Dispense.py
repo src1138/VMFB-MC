@@ -16,7 +16,7 @@ DIS = 19 # G10
 MTRCON = 11 # G23
 
 # Configure input pins
-# If using a LM393 comparator pull_up_down=GPIO.PUD_UP, is using an LM358 op amp, pull_up_down=GPIO.PUD_DOWN
+# If using a comparator pull_up_down=GPIO.PUD_UP, is using an op amp, pull_up_down=GPIO.PUD_DOWN
 GPIO.setup([DEP, DIS], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Configure output pins
 GPIO.setup([MTRCON], GPIO.OUT)
@@ -26,13 +26,8 @@ GPIO.output(MTRCON, 0)
 # logging and monitoring routines
 def logDEP(pin=None):
 	# Log the deposit event
-    # Consider making this only trigger on the downstroke - avoiding triggering when jammed
-	if (GPIO.input(DEP) == True):
-		DEPtext = "+"
-	else:
-		DEPtext = "-"
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP	" + DEPtext + "\n")
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP +\n")
 	# start the dispense motor and log the event
 	GPIO.output(MTRCON, 1)
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
@@ -40,21 +35,19 @@ def logDEP(pin=None):
         
 def logDIS(pin=None):
     # Log the dispense event
-    # Consider making this only trigger on the upstroke - avoiding failure to trigger when jammed    
-	if (GPIO.input(DIS) == True):
-		DIStext = "+"
-	else:
-		DIStext = "-"
+    # Consider making this 
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DIS	" + DIStext + "\n")
+		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DIS	+\n")
 	# stop the dispense motor and log the event
 	GPIO.output(MTRCON, 0)
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
 		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	MTR	-\n")
 	
-# We want to know about falling and rising edges for deposit and dispense
-GPIO.add_event_detect(DEP, GPIO.BOTH, logDEP)
-GPIO.add_event_detect(DIS, GPIO.BOTH, logDIS)
+# If using a comparator, we want to know about rising edges for the deposit and falling edges for the dispense events
+# to avoid jams and unjamming to trigger events and to avoid triggering two interrupt events per deposit/dispense
+# If using an op amp, this is reversed
+GPIO.add_event_detect(DEP, GPIO.RISING, logDEP)
+GPIO.add_event_detect(DIS, GPIO.FALLING, logDIS)
 
 while True:
 	time.sleep(1e6)

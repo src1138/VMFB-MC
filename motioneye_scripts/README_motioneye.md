@@ -5,12 +5,14 @@ If using op amp, all 4 inputs need pull down
 
 Pins for Raspberry Pi Zero W
 
-Deposit Monitor= 18 (pin 24) (input, PD, high trigger  interrupt)
-Dispense Monitor=19 (pin 10) (input, PD, high trigger  interrupt)
+Deposit Monitor= 18 (pin 24) (input, *PU, high trigger  interrupt)
+Dispense Monitor=19 (pin 10) (input, *PU, high trigger  interrupt)
 Motor Control=11 (pin 23) (outut, init low, high to start)
 PIR Monitor=27 (pin 13) (input, PD, high trigger)
 Sensor IR Control=25 (pin 22) (outut, init low, high to enable)
 Feed Level Monitor=23 (pin 16) (input, PD, high trigger)
+
+* for Deposit and Dispense, if using a comparator enable pull-ups and consider that the signal will go from high to low when triggered, if using an op amp enable pull downs and consider the signal will go from low to high when triggered.
 
 Configs
 
