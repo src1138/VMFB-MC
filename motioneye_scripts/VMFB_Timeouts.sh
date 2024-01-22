@@ -9,9 +9,9 @@ motor_timeout=10
 
 # Set up pins for Sensor IR and Motor
 # Assign pins
-PIR=27 
-SIR=25
-MTR=11
+PIR=27 #RPi ZeroW Pin #13 
+SIR=25 #RPi ZeroW Pin #22
+MTR=11 #RPi ZeroW Pin #23
 
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$PIR ||

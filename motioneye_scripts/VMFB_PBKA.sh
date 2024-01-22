@@ -9,7 +9,7 @@ pbka_interval=10
 pbka_pulse_length=1
 
 # Assign pins
-SIR=25
+SIR=25 #RPi ZeroW Pin #22
 
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$SIR ||

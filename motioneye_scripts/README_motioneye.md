@@ -16,8 +16,8 @@ Feed Level Monitor=23 (pin 16) (input, PD, high trigger)
 
 Configs
 
-config.txt - motioneye config where you can add GPIO pin configurations for startup
-userinit.sh - config file where you can disable HDMI, start scripts and pause motion detection at startup
+config.txt - config file where you add GPIO pin configurations for startup
+userinit.sh - config file where you can disable HDMI (for power saving), start scripts and pause motion detection at startup
 
 VMFB Scripts
 

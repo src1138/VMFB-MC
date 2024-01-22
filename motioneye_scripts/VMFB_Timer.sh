@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Assign pins
-SIR=25
-MTR=11
+SIR=25 #RPi ZeroW Pin #22
+MTR=11 #RPi ZeroW Pin #23
 
 # timer interval between dispenses in seconods
 timer_interval=5400 #90 mins

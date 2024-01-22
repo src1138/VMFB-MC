@@ -11,9 +11,9 @@ import threading
 GPIO.setmode(GPIO.BOARD)
 
 # Set pin numbers (not the same as the GPIO Pin number)
-DEP = 18 # G24
-DIS = 19 # G10
-MTRCON = 11 # G23
+DEP = 18 #RPi ZeroW Pin #24
+DIS = 19 #RPi ZeroW Pin #10
+MTRCON = 11 #RPi ZeroW Pin #23
 
 # Configure input pins
 # If using a comparator pull_up_down=GPIO.PUD_UP, is using an op amp, pull_up_down=GPIO.PUD_DOWN
@@ -24,7 +24,7 @@ GPIO.setup([MTRCON], GPIO.OUT)
 GPIO.output(MTRCON, 0)
 
 # logging and monitoring routines
-def logDEP(pin=None):
+def deposit(pin=None):
 	# Log the deposit event
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
 		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	DEP +\n")
@@ -33,7 +33,7 @@ def logDEP(pin=None):
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
 		file.write(str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")) + "	MTR	+\n")
         
-def logDIS(pin=None):
+def dispense(pin=None):
     # Log the dispense event
     # Consider making this 
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
@@ -46,8 +46,8 @@ def logDIS(pin=None):
 # If using a comparator, we want to know about rising edges for the deposit and falling edges for the dispense events
 # to avoid jams and unjamming to trigger events and to avoid triggering two interrupt events per deposit/dispense
 # If using an op amp, this is reversed
-GPIO.add_event_detect(DEP, GPIO.RISING, logDEP)
-GPIO.add_event_detect(DIS, GPIO.FALLING, logDIS)
+GPIO.add_event_detect(DEP, GPIO.RISING, deposit)
+GPIO.add_event_detect(DIS, GPIO.FALLING, dispense)
 
 while True:
 	time.sleep(1e6)

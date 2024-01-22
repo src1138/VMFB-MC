@@ -2,9 +2,9 @@
 
 # Set up input pins and check their values
 # Assign pins
-PIR=27 #13
-SIR=25 #22
-EMT=23 #16
+PIR=27 #RPi ZeroW Pin #13
+SIR=25 #RPi ZeroW Pin #22
+EMT=23 #RPi ZeroW Pin #16
  
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$PIR ||
