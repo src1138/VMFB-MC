@@ -10,10 +10,10 @@ import threading
 # Initialize RPi GPIO
 GPIO.setmode(GPIO.BOARD)
 
-# Set pin numbers (not the same as the GPIO Pin number)
-DEP = 18 #RPi ZeroW Pin #24
-DIS = 19 #RPi ZeroW Pin #10
-MTRCON = 11 #RPi ZeroW Pin #23
+# Set pin numbers (these are physical pin numbers and not GPIO numbers)
+DEP = 18 #RPi ZeroW GPIO #24
+DIS = 19 #RPi ZeroW GPIO #10
+MTRCON = 23 #RPi ZeroW GPIO #11
 
 # Configure input pins
 # If using a comparator pull_up_down=GPIO.PUD_UP, is using an op amp, pull_up_down=GPIO.PUD_DOWN
