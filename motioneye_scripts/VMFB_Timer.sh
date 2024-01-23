@@ -22,14 +22,17 @@ timer_offtime="1800" #6:00pm
 while true
 do
 # check if Timer is enabled 
-if [ $(cat /data/log/Timer_enable) == "1" ] then
+if [ $(cat /data/log/Timer_enable) == "1" ] 
+then
 
 	# Get the current time's hours and minutes (ex. 1430 for 2:30pm)
 	nowtime=$(date +%H%M)
 
 	# Swap $ontime and $offtime to disable early and enable late
-	if [ "$nowtime" -ge "$timer_ontime" ] then
-		if [ "$nowtime" -le "$timer_offtime" ] then
+	if [ "$nowtime" -ge "$timer_ontime" ] 
+	then
+		if [ "$nowtime" -le "$timer_offtime" ] 
+		then
 			VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 			touch "$VMFB_logfile"
 			echo "$(date +%F_%X)	TMR	+">> "$VMFB_logfile"

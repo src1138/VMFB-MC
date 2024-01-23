@@ -74,7 +74,8 @@ fi
 # Motor
 valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
 # check that motor is on
-if [ "$valMTR" == "1" ]; then
+if [ "$valMTR" == "1" ] 
+then
 	# if there is not a log entry for Deposit or Timer in today's log
 		# turn motor off
 		echo "0" >| /sys/class/gpio/gpio$MTR/value
@@ -87,7 +88,8 @@ if [ "$valMTR" == "1" ]; then
 		lastMTR_event_datetimestring=$(grep 'Deposit\|Timer' $VMFB_logfile | tail -1 | awk '{print $1}')
 		lastMTR_datetime=$(date --date=$lastMTR_event_datetimestring +"%s")
 		# subtract last Deposit or Timer trigger datetime from now
-		if [ $now-$lastMTR_datetime>=$motor_timeout ] then
+		if [ $now-$lastMTR_datetime>=$motor_timeout ] 
+		then
 			# if result is >= motor_timeout turn motor off
 			echo "0" >| /sys/class/gpio/gpio$MTR/value
 			# update previous value file
@@ -95,7 +97,7 @@ if [ "$valMTR" == "1" ]; then
 			# log motor timeout event
 			echo "$dtStamp	MTR	TO">> "$VMFB_logfile"
 		fi
-	fi
+	#fi
 fi
 
 sleep 1
