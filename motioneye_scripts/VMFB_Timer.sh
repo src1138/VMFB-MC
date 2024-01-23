@@ -12,12 +12,12 @@ timer_ontime="0600" #6:00am
 timer_offtime="1800" #6:00pm
  
 # Verify they are set up, else initialize them
-test -e /sys/class/gpio/gpio$SIR ||
-  (echo $SIR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$SIR/direction)
-test -e /sys/class/gpio/gpio$MTR ||
-  (echo $MTR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$MTR/direction)
+#test -e /sys/class/gpio/gpio$SIR ||
+#  (echo $SIR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$SIR/direction)
+#test -e /sys/class/gpio/gpio$MTR ||
+#  (echo $MTR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$MTR/direction)
 
 while true
 do
@@ -28,8 +28,8 @@ if [ $(cat /data/log/Timer_enable) == "1" ] then
 	nowtime=$(date +%H%M)
 
 	# Swap $ontime and $offtime to disable early and enable late
-	if [[ "$nowtime" >= "$timer_ontime" ]]; then
-		if [[ "$nowtime" <= "$timer_offtime" ]]; then
+	if [ "$nowtime" -ge "$timer_ontime" ] then
+		if [ "$nowtime" -le "$timer_offtime" ] then
 			VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 			touch "$VMFB_logfile"
 			echo "$(date +%F_%X)	TMR	+">> "$VMFB_logfile"

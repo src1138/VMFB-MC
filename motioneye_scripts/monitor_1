@@ -10,24 +10,24 @@ DEP=24 #RPi ZeroW Pin #18
 DIS=10 #RPi ZeroW Pin #19
  
 # Verify they are set up, else initialize them
-test -e /sys/class/gpio/gpio$PIR ||
-  (echo $PIR > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$PIR/direction)
-test -e /sys/class/gpio/gpio$SIR || 
-  (echo $SIR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$SIR/direction)
-test -e /sys/class/gpio/gpio$DEP ||
-  (echo $DEP > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$DEP/direction)
-test -e /sys/class/gpio/gpio$DIS ||
-  (echo $DIS > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$DIS/direction)
-test -e /sys/class/gpio/gpio$MTR || 
-  (echo $MTR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$MTR/direction)
-test -e /sys/class/gpio/gpio$EMT ||
-  (echo $EMT > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$EMT/direction)
+#test -e /sys/class/gpio/gpio$PIR ||
+#  (echo $PIR > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$PIR/direction)
+#test -e /sys/class/gpio/gpio$SIR || 
+#  (echo $SIR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$SIR/direction)
+#test -e /sys/class/gpio/gpio$DEP ||
+#  (echo $DEP > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$DEP/direction)
+#test -e /sys/class/gpio/gpio$DIS ||
+#  (echo $DIS > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$DIS/direction)
+#test -e /sys/class/gpio/gpio$MTR || 
+#  (echo $MTR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$MTR/direction)
+#test -e /sys/class/gpio/gpio$EMT ||
+#  (echo $EMT > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$EMT/direction)
 
 # Get the values for the last script execution
 prev_valEMT=$(cat /data/log/prev_valEMT)

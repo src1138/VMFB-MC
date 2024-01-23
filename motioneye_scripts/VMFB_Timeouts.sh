@@ -14,15 +14,15 @@ SIR=25 #RPi ZeroW Pin #22
 MTR=11 #RPi ZeroW Pin #23
 
 # Verify they are set up, else initialize them
-test -e /sys/class/gpio/gpio$PIR ||
-  (echo $PIR > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$PIR/direction)
-test -e /sys/class/gpio/gpio$SIR ||
-  (echo $SIR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$SIR/direction)
-test -e /sys/class/gpio/gpio$MTR ||
-  (echo $MTR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$MTR/direction)
+#test -e /sys/class/gpio/gpio$PIR ||
+#  (echo $PIR > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$PIR/direction)
+#test -e /sys/class/gpio/gpio$SIR ||
+#  (echo $SIR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$SIR/direction)
+#test -e /sys/class/gpio/gpio$MTR ||
+#  (echo $MTR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$MTR/direction)
 
 while true
 do
@@ -39,9 +39,9 @@ now=$(date +"%s")
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
 # check that sensors are on
-if [ "$valSIR" == "1" ]; then
+if [ "$valSIR" == "1" ] then
 	# check that PIR is not triggering 
-	if [ "$valPIR" == "0" ]; then
+	if [ "$valPIR" == "0" ] then
 		# if no PIR or Timer event in today's log 
 		if [ $(grep 'PIR\|TIMER' $VMFB_logfile  | grep "+")=="" ] then
 			# turn sensors off
@@ -52,20 +52,21 @@ if [ "$valSIR" == "1" ]; then
 			echo "$dtStamp	SIR	TO">> "$VMFB_logfile"
 			# enable PBKA to work while sensors off due to sensor timeout
 			echo "0" >| /data/log/PBKA_hold
-		else 
-		# parse log for last PIR or Timer event and get datetime
-		lastSensor_event_datetimestring=$(grep 'PIR\|TMR' $VMFB_logfile | grep "+" | tail -1 | awk '{print $1}')
-		lastSensor_datetime=$(date --date=$lastSensor_event_datetimestring +"%s")
-		# subtract last PIR or Timer trigger datetime from now
-		if [ $now-$lastSensor_datetime>=$sensor_timeout ] then
-			# if result is >= sensor_timeout, turn sensors off
-			echo "0" >| /sys/class/gpio/gpio$SIR/value
-			# update previous value file
-			echo "0" >| /data/log/prev_valSIR
-			# log sensor timeout event
-			echo "$dtStamp	SIR	TO">> "$VMFB_logfile"
-			# enable PBKA to work while sensors off due to sensor timeout
-			echo "0" >| /data/log/PBKA_hold
+		else
+			# parse log for last PIR or Timer event and get datetime
+			lastSensor_event_datetimestring=$(grep 'PIR\|TMR' $VMFB_logfile | grep "+" | tail -1 | awk '{print $1}')
+			lastSensor_datetime=$(date --date=$lastSensor_event_datetimestring +"%s")
+			# subtract last PIR or Timer trigger datetime from now
+			if [ $now-$lastSensor_datetime>=$sensor_timeout ] then
+				# if result is >= sensor_timeout, turn sensors off
+				echo "0" >| /sys/class/gpio/gpio$SIR/value
+				# update previous value file
+				echo "0" >| /data/log/prev_valSIR
+				# log sensor timeout event
+				echo "$dtStamp	SIR	TO">> "$VMFB_logfile"
+				# enable PBKA to work while sensors off due to sensor timeout
+				echo "0" >| /data/log/PBKA_hold
+			fi
 		fi
 	fi
 fi

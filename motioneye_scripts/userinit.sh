@@ -1,5 +1,7 @@
 # Turn off HDMI to save ~24mA
 /usr/bin/tvservice -o >> /data/log/userinit.log
+# Initialize GPIO
+nohup /data/etc/VMFB_GPIO_Init.sh >> /data/log/userinit.log &
 # Start deposit/dispense 
 nohup /data/etc/VMFB_Deposit-Dispense.py >> /data/log/userinit.log &
 # Start PIR, Sensor IR and Empty sensors

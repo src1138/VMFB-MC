@@ -7,15 +7,19 @@ SIR=25 #RPi ZeroW Pin #22
 EMT=23 #RPi ZeroW Pin #16
  
 # Verify they are set up, else initialize them
-test -e /sys/class/gpio/gpio$PIR ||
-  (echo $PIR > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$PIR/direction)
-test -e /sys/class/gpio/gpio$SIR || 
-  (echo $SIR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$SIR/direction)
-test -e /sys/class/gpio/gpio$EMT ||
-  (echo $EMT > /sys/class/gpio/export \
-   && echo in > /sys/class/gpio/gpio$EMT/direction)
+#test -e /sys/class/gpio/gpio$PIR ||
+#  (echo $PIR > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$PIR/direction)
+#test -e /sys/class/gpio/gpio$SIR || 
+#  (echo $SIR > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$SIR/direction)
+#test -e /sys/class/gpio/gpio$EMT ||
+#  (echo $EMT > /sys/class/gpio/export \
+#   && echo in > /sys/class/gpio/gpio$EMT/direction)
+
+#touch "/data/log/prev_valPIR"
+#touch "/data/log/prev_valSIR"
+#touch "/data/log/prev_valEMT"
 
 while true
 do
@@ -30,7 +34,7 @@ valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 
 # if the PIR is on, set SIR pin to high, else it keeps the previous value
 if [ "$valPIR" == "1" ]; then
-    valSIR = 1
+    valSIR="1"
     echo $valSIR >| /sys/class/gpio/gpio$SIR/value
     # prevent PBKA from working while sensors are on due to PIR trigger
     echo "1" >| /data/log/PBKA_hold
