@@ -24,7 +24,6 @@ do
 # check if Timer is enabled 
 if [ $(cat /data/log/Timer_enable) == "1" ] 
 then
-
 	# Get the current time's hours and minutes (ex. 1430 for 2:30pm)
 	nowtime=$(date +%H%M)
 
@@ -36,6 +35,7 @@ then
 			VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 			touch "$VMFB_logfile"
 			echo "$(date +%F_%X)	TMR	+">> "$VMFB_logfile"
+			echo "$(date +%F_%X)	MTR	+">> "$VMFB_logfile"
 			# Set the sensor IR and motor pins to high
 			echo "1">/sys/class/gpio/gpio$SIR/value
 			echo "1">/sys/class/gpio/gpio$MTR/value
@@ -49,6 +49,6 @@ then
 fi
 
 # Trigger timer every timer_interval (seconds)
-sleep timer_interval
+sleep $timer_interval
 
 done

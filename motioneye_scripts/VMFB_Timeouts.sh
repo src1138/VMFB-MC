@@ -39,11 +39,14 @@ now=$(date +"%s")
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
 # check that sensors are on
-if [ "$valSIR" == "1" ] then
+if [ "$valSIR" == "1" ] 
+then
 	# check that PIR is not triggering 
-	if [ "$valPIR" == "0" ] then
+	if [ "$valPIR" == "0" ] 
+	then
 		# if no PIR or Timer event in today's log 
-		if [ $(grep 'PIR\|TIMER' $VMFB_logfile  | grep "+")=="" ] then
+		if [ $(grep 'PIR\|TIMER' $VMFB_logfile  | grep "+")=="" ] 
+		then
 			# turn sensors off
 			echo "0" >| /sys/class/gpio/gpio$SIR/value
 			# update previous value file
@@ -57,7 +60,8 @@ if [ "$valSIR" == "1" ] then
 			lastSensor_event_datetimestring=$(grep 'PIR\|TMR' $VMFB_logfile | grep "+" | tail -1 | awk '{print $1}')
 			lastSensor_datetime=$(date --date=$lastSensor_event_datetimestring +"%s")
 			# subtract last PIR or Timer trigger datetime from now
-			if [ $now-$lastSensor_datetime>=$sensor_timeout ] then
+			if [ $now-$lastSensor_datetime -ge $sensor_timeout ] 
+			then
 				# if result is >= sensor_timeout, turn sensors off
 				echo "0" >| /sys/class/gpio/gpio$SIR/value
 				# update previous value file
@@ -76,19 +80,21 @@ valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
 # check that motor is on
 if [ "$valMTR" == "1" ] 
 then
-	# if there is not a log entry for Deposit or Timer in today's log
+	# if there is not a log entry for Motor on in today's log
+	if [ $(grep MTR $VMFB_logfile  | grep "+")=="" ] 
+	then
 		# turn motor off
 		echo "0" >| /sys/class/gpio/gpio$MTR/value
 		# update previous value file
 		echo "0" >| /data/log/prev_valMTR
 		# log motor timeout event
 		echo "$dtStamp	MTR	TO">> "$VMFB_logfile"
-	# else
-		# parse log for last Deposit or Timer trigger and get datetime
-		lastMTR_event_datetimestring=$(grep 'Deposit\|Timer' $VMFB_logfile | tail -1 | awk '{print $1}')
+	else
+		# parse log for last Motor trigger and get datetime
+		lastMTR_event_datetimestring=$(grep MTR $VMFB_logfile | tail -1 | awk '{print $1}')
 		lastMTR_datetime=$(date --date=$lastMTR_event_datetimestring +"%s")
-		# subtract last Deposit or Timer trigger datetime from now
-		if [ $now-$lastMTR_datetime>=$motor_timeout ] 
+		# subtract last Motor trigger datetime from now
+		if [ $now-$lastMTR_datetime -ge $motor_timeout ] 
 		then
 			# if result is >= motor_timeout turn motor off
 			echo "0" >| /sys/class/gpio/gpio$MTR/value
@@ -97,7 +103,7 @@ then
 			# log motor timeout event
 			echo "$dtStamp	MTR	TO">> "$VMFB_logfile"
 		fi
-	#fi
+	fi
 fi
 
 sleep 1

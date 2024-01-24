@@ -73,9 +73,9 @@ if [ "$valSIR" == "0" ]; then
 else
     SIR_text="+"
     if [ "$valSIR" != "$prev_valSIR" ]; then
-        curl  http://localhost:7999/1/detection/start
+        curl http://localhost:7999/1/detection/start
         curl http://localhost:7999/1/action/eventstart
-        curl  http://localhost:7999/1/detection/pause
+        curl http://localhost:7999/1/detection/pause
     fi
 fi
 
