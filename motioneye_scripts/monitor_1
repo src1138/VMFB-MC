@@ -37,7 +37,8 @@ valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
 valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
 # Only get the EMT pin value if the sensors are on, else reuse the previous value
-if [ "$valSIR" == "1" ]; then
+if [ "$valSIR" == "1" ]
+then
     valEMT=$(cat /sys/class/gpio/gpio$EMT/value)
 else
     valEMT=$prev_valEMT
@@ -47,41 +48,61 @@ valDIS=$(cat /sys/class/gpio/gpio$DIS/value)
 
 # Set the display text for the pin values 
 
-if [ "$valPIR" == "1" ]; then
+if [ "$valPIR" == "1" ]
+then
     PIR_text="-"
 else
     PIR_text="+"
 fi
  
-if [ "$valSIR" == "1" ]; then
+if [ "$valSIR" == "1" ]
+then
     SIR_text="-"
 else
     SIR_text="+"
 fi
 
-if [ "$valMTR" == "1" ]; then
+if [ "$valMTR" == "1" ]
+then
     MTR_text="+"
 else
     MTR_text="-"
 fi
 
-if [ "$valEMT" == "0" ]; then
-    EMT_text="-"
-else
-    EMT_text="+"
-fi
-
 # Deposit and Dispense events are too short to catch unless there is a jam
-if [ "$valDIS" == "0" ]; then
+if [ "$valDIS" == "0" ]
+then
     DIS_text="+"
 else
     DIS_text="-"
 fi
 
-if [ "$valDEP" == "0" ]; then
+if [ "$valDEP" == "0" ]
+then
     DEP_text="+"
 else
     DEP_text="-"
+fi
+
+if [ "$valEMT" == "1" ]
+then
+    EMT_text=""
+else
+    EMT_text="&#9888;"
+fi
+
+if [ $(cat /data/log/Timer_enable) == "1" ] 
+then
+	TMR_text="&#9202;"
+else
+	TMR_text=""
+fi
+
+if [ $(cat /data/log/PBKA_enable) == "1" ] 
+then
+	PBKA_text="&#8961;"
+else
+	PBKA_text=""
 fi
 
 VMFB_logfile="/data/log/VMFB_$(date +%F).log"
@@ -90,6 +111,6 @@ DEPcount=$(grep DEP $VMFB_logfile | grep -c "+")
 DIScount=$(grep DIS $VMFB_logfile | grep -c "+")
 
 # Output to the UI
-echo "PIR$PIR_text$PIRcount|IR$SIR_text|MTR$MTR_text|FEED$EMT_text|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount"
+echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|IR$SIR_text|MTR$MTR_text|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount"
 # 1 second delay between executions
 echo 1 1>&2
