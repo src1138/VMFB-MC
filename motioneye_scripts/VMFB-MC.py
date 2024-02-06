@@ -55,7 +55,7 @@ def PIREvent(pin=None):
 	logEvent("PIR","+")
 	sensorsOn
 	
-def checkMT(pin=None):
+def updateMT(pin=None):
 	if GPIO.input(MT) == 1:
 		GPIO.output(MT_SIG,1)
 		logEvent("MT","+")
@@ -64,10 +64,10 @@ def checkMT(pin=None):
 		logEvent("MT","-")
 	
 def sensorsOn(pin=None):
-	GPIO.output(SIR,1)
 	PBKASuspend
+    GPIO.output(SIR,1)
 	logEvent("SIR","+")
-	checkMT
+	updateMT
 	global sensorTimer
 	if sensorTimer.is_alive() == False:
 		sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
@@ -78,13 +78,13 @@ def sensorsOn(pin=None):
 		sensorTimer.start()
 	
 def sensorsOff(pin=None):
-	checkMT
+	updateMT
 	GPIO.output(SIR,0)
-	PBKAEnable
 	logEvent("SIR","-")
-	global sensorTimer
+   	global sensorTimer
 	if sensorTimer.is_alive() == True:
 		sensorTimer.cancel()
+    PBKAEnable
 
 def DEPEvent(pin=None):
 	logEvent("DEP","+")
