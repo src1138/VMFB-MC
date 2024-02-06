@@ -1,12 +1,15 @@
 #!/bin/bash
 
-#check if Timer is already enabled
-Timer_enable=$(cat /data/log/Timer_enable)
-if [$Timer_enable != 1] then
+# Assign pins
+TMR=16 #RPi ZeroW Pin #36
+
+#Toggle the TMR enable pin
+Timer_enable=$(cat /sys/class/gpio/gpio$TMR/value)
+if [ $Timer_enable == "1" ] 
+then
+	# disable Timer
+	echo "0" >| /sys/class/gpio/gpio$TMR/value
+else
 	# enable Timer
-	echo "1" >| /data/log/Timer_enable
-	# log event
-	VMFB_logfile="/data/log/VMFB_$(date +%F).log"
-	touch "$VMFB_logfile"
-	echo "$(date +%F_%X)	TMR	ON">> "$VMFB_logfile"
+	echo "1" >| /sys/class/gpio/gpio$TMR/value
 fi

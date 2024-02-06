@@ -5,29 +5,11 @@
 PIR=27 #RPi ZeroW Pin #13
 SIR=25 #RPi ZeroW Pin #22
 MTR=11 #RPi ZeroW Pin #23
-EMT=23 #RPi ZeroW Pin #16
+MT=5 #RPi ZeroW Pin #29
 DEP=24 #RPi ZeroW Pin #18
 DIS=10 #RPi ZeroW Pin #19
- 
-# Verify they are set up, else initialize them
-#test -e /sys/class/gpio/gpio$PIR ||
-#  (echo $PIR > /sys/class/gpio/export \
-#   && echo in > /sys/class/gpio/gpio$PIR/direction)
-#test -e /sys/class/gpio/gpio$SIR || 
-#  (echo $SIR > /sys/class/gpio/export \
-#   && echo out > /sys/class/gpio/gpio$SIR/direction)
-#test -e /sys/class/gpio/gpio$DEP ||
-#  (echo $DEP > /sys/class/gpio/export \
-#   && echo in > /sys/class/gpio/gpio$DEP/direction)
-#test -e /sys/class/gpio/gpio$DIS ||
-#  (echo $DIS > /sys/class/gpio/export \
-#   && echo in > /sys/class/gpio/gpio$DIS/direction)
-#test -e /sys/class/gpio/gpio$MTR || 
-#  (echo $MTR > /sys/class/gpio/export \
-#   && echo out > /sys/class/gpio/gpio$MTR/direction)
-#test -e /sys/class/gpio/gpio$EMT ||
-#  (echo $EMT > /sys/class/gpio/export \
-#   && echo in > /sys/class/gpio/gpio$EMT/direction)
+PBKA=19 #RPi ZeroW Pin #35
+TMR=13 #RPi ZeroW Pin #33
 
 # Get the values for the last script execution
 prev_valEMT=$(cat /data/log/prev_valEMT)
@@ -36,30 +18,26 @@ prev_valEMT=$(cat /data/log/prev_valEMT)
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
 valMTR=$(cat /sys/class/gpio/gpio$MTR/value)
-# Only get the EMT pin value if the sensors are on, else reuse the previous value
-if [ "$valSIR" == "1" ]
-then
-    valEMT=$(cat /sys/class/gpio/gpio$EMT/value)
-else
-    valEMT=$prev_valEMT
-fi
+valMT=$(cat /sys/class/gpio/gpio$MT/value)
 valDEP=$(cat /sys/class/gpio/gpio$DEP/value)
 valDIS=$(cat /sys/class/gpio/gpio$DIS/value)
+valPBKA=$(cat /sys/class/gpio/gpio$PBKA/value)
+valTMR=$(cat /sys/class/gpio/gpio$TMR/value)
 
 # Set the display text for the pin values 
 
 if [ "$valPIR" == "1" ]
 then
-    PIR_text="-"
-else
     PIR_text="+"
+else
+    PIR_text="-"
 fi
  
 if [ "$valSIR" == "1" ]
 then
-    SIR_text="-"
-else
     SIR_text="+"
+else
+    SIR_text="-"
 fi
 
 if [ "$valMTR" == "1" ]
@@ -70,14 +48,14 @@ else
 fi
 
 # Deposit and Dispense events are too short to catch unless there is a jam
-if [ "$valDIS" == "0" ]
+if [ "$valDIS" == "1" ]
 then
     DIS_text="+"
 else
     DIS_text="-"
 fi
 
-if [ "$valDEP" == "0" ]
+if [ "$valDEP" == "1" ]
 then
     DEP_text="+"
 else
@@ -88,29 +66,31 @@ if [ "$valEMT" == "1" ]
 then
     EMT_text=""
 else
-    EMT_text="&#9888;"
+    EMT_text="&#129372;"
 fi
 
-if [ $(cat /data/log/Timer_enable) == "1" ] 
+if [ "$valTMR" == "1" ] 
 then
 	TMR_text="&#9202;"
 else
 	TMR_text=""
 fi
 
-if [ $(cat /data/log/PBKA_enable) == "1" ] 
+if [ "$valPBKA" == "1" ] 
 then
-	PBKA_text="&#8961;"
+	PBKA_text="&#128498;"
 else
 	PBKA_text=""
 fi
 
 VMFB_logfile="/data/log/VMFB_$(date +%F).log"
-PIRcount=$(grep PIR $VMFB_logfile | grep -c "+")
-DEPcount=$(grep DEP $VMFB_logfile | grep -c "+")
-DIScount=$(grep DIS $VMFB_logfile | grep -c "+")
+touch "$VMFB_logfile"
+PIRcount=$(grep -c 'PIR\t\+' $VMFB_logfile)
+DEPcount=$(grep -c 'DEP\t\+' $VMFB_logfile)
+DIScount=$(grep -c 'DIS\t\+' $VMFB_logfile)
 
 # Output to the UI
-echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|IR$SIR_text|MTR$MTR_text|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount"
+echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount|IR$SIR_text|MTR$MTR_text"
 # 1 second delay between executions
 echo 1 1>&2
+

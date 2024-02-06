@@ -1,20 +1,8 @@
 #!/bin/bash
 
 # Assign pins
-MTR=11
+MAN=21 #RPi ZeroW Pin #40
  
-# Verify they are set up, else initialize them
-test -e /sys/class/gpio/gpio$MTR ||
-  (echo $MTR > /sys/class/gpio/export \
-   && echo out > /sys/class/gpio/gpio$MTR/direction)
-
-#check if Motor is already on
-Motor_state=$(cat /sys/class/gpio/gpio$MTR/value)
-if [$Motor_state != 1] then
-	# Set the pin to high, turning the dispense motor on
-	echo "1">/sys/class/gpio/gpio$MTR/value
-	# log event
-	VMFB_logfile="/data/log/VMFB_$(date +%F).log"
-	touch "$VMFB_logfile"
-	echo "$(date +%F_%X)	MTR	MAN">> "$VMFB_logfile"
-fi
+# Set the MAN pin to high, then back to low
+echo "1" >| /sys/class/gpio/gpio$MAN/value
+echo "0" >| /sys/class/gpio/gpio$MAN/value

@@ -10,11 +10,11 @@ arm_freq=950
 gpu_freq=250
 sdram_freq=450
 over_voltage=0
-# Set pins 11 (MTR) and 25 (SIR) to be outputs driving low to avoid them
+# Set pins 11 (MTR), 25 (SIR) and 5 (MT_SIG) to be outputs driving low to avoid them
 # staying high on statup
-gpio=11,25=op,dl
-# Set GPIO pins 23 (Empty),27 (PIR) to be inputs with pull-downs
+gpio=11,25,5=op,dl
+# Set GPIO pins 23 (MT), 27 (PIR), 26 (MAN), 13 (TMR), 19 (PBKA) to be inputs with pull-downs
+gpio=23,27,26,13,19=ip,pd
 # Set GPIO pins 24 (Deposit),10 (Dispense) to be inputs with pull-ups (for comparator - use pull-downs for op amps)
-gpio=23,27=ip,pd
 gpio=24,10=ip,pu
 
