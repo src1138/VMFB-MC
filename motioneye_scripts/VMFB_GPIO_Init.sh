@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Set up GPIO pins
-MAN=26 #RPi ZeroW Pin #37
-TMR=13 #RPi ZeroW Pin #33
-PBKA=19 #RPi ZeroW Pin #35
+MAN=21 #RPi ZeroW Pin #40
+TMR=16 #RPi ZeroW Pin #36
+PBKA=20 #RPi ZeroW Pin #38
  
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$MAN || 

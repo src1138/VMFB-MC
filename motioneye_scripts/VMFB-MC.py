@@ -9,6 +9,8 @@ import threading
 sensorTimeout=30
 motorTimeout=10
 timedDispensePeriod=5400
+timedDispenseStartTime=0800
+timedDispenseEndTime=1700
 pbkaOnPeriod=1
 pbkaOffPeriod=10
 
@@ -117,9 +119,11 @@ def MANEvent(pin=None):
 	motorOn
 
 def timedDispense(pin=None):
-	logEvent("TMR","+")
-	sensorsOn
-	motorOn
+	nowTime=int(datetime.now().strftime("%H%M"))
+	if (nowTime >= timedDispenseStartTime) AND (nowTime <= timedDispenseEndTime):
+		logEvent("TMR","+")
+		sensorsOn
+		motorOn
 	
 def TMREnable(pin=None):
 	global timedDispenseTimer
