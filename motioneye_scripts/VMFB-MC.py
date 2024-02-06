@@ -195,8 +195,6 @@ def PBKAOff(pin=None):
 GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent)	
 GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent)
 GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent)
-
-# Set up GPIO interrupts
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent)	
 GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable)
 GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable)
@@ -208,3 +206,5 @@ timedDispenseTimer = threading.Timer(timedDispensePeriod, timedDispense)
 PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
 PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
+while True:
+    time.sleep(1e6)
