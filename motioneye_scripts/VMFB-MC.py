@@ -9,7 +9,7 @@ import threading
 sensorTimeout=30
 motorTimeout=10
 timedDispensePeriod=5400
-timedDispenseStartTime=0800
+timedDispenseStartTime=800
 timedDispenseEndTime=1700
 pbkaOnPeriod=1
 pbkaOffPeriod=10
@@ -50,7 +50,6 @@ def logEvent(eventType=None,event=None):
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
 		file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + eventType + "	" + event + "\n")
 	
-	
 def PIREvent(pin=None):
 	logEvent("PIR","+")
 	sensorsOn
@@ -65,7 +64,7 @@ def updateMT(pin=None):
 	
 def sensorsOn(pin=None):
 	PBKASuspend
-    GPIO.output(SIR,1)
+    	GPIO.output(SIR,1)
 	logEvent("SIR","+")
 	updateMT
 	global sensorTimer
@@ -84,7 +83,7 @@ def sensorsOff(pin=None):
    	global sensorTimer
 	if sensorTimer.is_alive() == True:
 		sensorTimer.cancel()
-    PBKAEnable
+	PBKAEnable
 
 def DEPEvent(pin=None):
 	logEvent("DEP","+")
@@ -120,7 +119,7 @@ def MANEvent(pin=None):
 
 def timedDispense(pin=None):
 	nowTime=int(datetime.now().strftime("%H%M"))
-	if (nowTime >= timedDispenseStartTime) AND (nowTime <= timedDispenseEndTime):
+	if (int(nowTime) >= int(timedDispenseStartTime)) & (int(nowTime) <= int(timedDispenseEndTime)):
 		logEvent("TMR","+")
 		sensorsOn
 		motorOn
@@ -192,10 +191,10 @@ def PBKAOff(pin=None):
 		PBKAOffTimer.start()
 
 # Set up GPIO interrupts
-GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent)	
+GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent)
 GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent)
 GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent)
-GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent)	
+GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent)
 GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable)
 GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable)
 	
@@ -207,4 +206,4 @@ PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
 PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
 while True:
-    time.sleep(1e6)
+	time.sleep(1e6)
