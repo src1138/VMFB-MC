@@ -16,9 +16,10 @@ pbkaOffPeriod=10
 
 # Initialize RPi GPIO
 GPIO.setmode(GPIO.BOARD)
+# GPIO.setmode(GPIO.BCM)
 
 # Disable warnings
-GPIO.setwarnings(False)
+# GPIO.setwarnings(False)
 
 # Set GPIO pin numbers 
 PIR=13 #GPIO 27
@@ -39,12 +40,8 @@ GPIO.setup([MAN,PBKA,TMR], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 # if using an op amp, pull_up_down=GPIO.PUD_DOWN
 GPIO.setup([DEP, DIS], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-# Configure GPIO outputs
-GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT)
-# Set outputs to low initially
-GPIO.output(MT_SIG, 0)
-GPIO.output(MTR, 0)
-GPIO.output(SIR, 0)
+# Configure GPIO outputs and set them to low initially
+GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 
 def logEvent(eventType=None,event=None):
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
