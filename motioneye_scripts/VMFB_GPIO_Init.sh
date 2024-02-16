@@ -32,13 +32,13 @@ test -e /sys/class/gpio/gpio$MT_SIG ||
    && echo out > /sys/class/gpio/gpio$MT_SIG/direction)
 
 # Exporting the python inputs
-PIR=27 #pin 13
-MT=23 #pin 16
-MAN=26 #pin 37
+PIR=27 	#pin 13
+MT=23 	#pin 16
+MAN=26 	#pin 37
 PBKA=19 #pin 35
-TMR=13 #pin33
-DIS=10 #pin 19
-DEP=24 #pin 18
+TMR=13 	#pin 33
+DIS=10 	#pin 19
+DEP=24 	#pin 18
 
 test -e /sys/class/gpio/gpio$PIR ||
   (echo $PIR > /sys/class/gpio/export \
