@@ -112,8 +112,6 @@ def MANEvent(pin=None):
 
 def timedDispense(pin=None):
 	nowTime=int(datetime.now().strftime("%H%M"))
-	logEvent("TMR",nowTime)
-	logEvent("TMR","timedDispense")
 	if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
 		logEvent("TMR","+")
 		sensorsOn()
