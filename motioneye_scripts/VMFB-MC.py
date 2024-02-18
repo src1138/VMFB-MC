@@ -61,8 +61,8 @@ def updateMT(event="0"):
 		GPIO.output(MT_SIG,0)
 	logEvent("MT",event)
 
-# Suspends PBKA if it is enabled, turns on sensor LEDs, updates empty sensor status, 
-# and (re)starts sensor timeout timer	
+# Suspends PBKA if it is enabled, turns on sensor LEDs, 
+# updates empty sensor status, and (re)starts sensor timeout timer	
 def sensorsOn(event="PIR"):
 	if GPIO.input(PBKA) == 1:
 		PBKASuspend()
@@ -120,8 +120,9 @@ def MANEvent(event="DISPENSE"):
 	motorOn("MAN")
 	logEvent("MAN",event)
 
-# if current time is after the start time but before the end time, turns on the sensor LEDs and starts the motor
-# and (re)starts the timed dispense interval timer
+# if current time is equal to or after the start time and equal to
+# or before the end time, turns on the sensor LEDs and starts the 
+# motor and (re)starts the timed dispense interval timer
 def timedDispense(event="DISPENSE"):
 	nowTime=int(datetime.now().strftime("%H%M"))
     # If you want to define multiple windows of timer operation
@@ -137,7 +138,8 @@ def timedDispense(event="DISPENSE"):
  	timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
  	timedDispenseTimer.start()
 
-# When the TMR pin changes state, (re)starts the timed dispense timer if it is high, stops it when it is low
+# When the TMR pin changes state, (re)starts the timed dispense
+# timer if it is high, stops it when it is low
 def TMREnable(event="DISABLED"):
 	global timedDispenseTimer
 	if GPIO.input(TMR) == 1:
@@ -153,7 +155,7 @@ def TMREnable(event="DISABLED"):
 
 # Suspends the PBKA current sinking, stops PBKA timers
 def PBKASuspend(event="SUSPENDED"):
-	if GPIO.input(PBKA) == 1:
+	if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
 		if PBKAOnTimer.is_alive() == True:
 			PBKAOnTimer.cancel()
 		if PBKAOffTimer.is_alive() == True:

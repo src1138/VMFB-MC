@@ -85,12 +85,14 @@ fi
 
 VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 touch "$VMFB_logfile"
-PIRcount=$(grep -c 'PIR[[:blank:]]\+' $VMFB_logfile)
-DEPcount=$(grep -c 'DEP[[:blank:]]\+' $VMFB_logfile)
-DIScount=$(grep -c 'DIS[[:blank:]]\+' $VMFB_logfile)
+PIRcount=$(grep -c 'PIR[[:blank:]]1' $VMFB_logfile)
+DEPcount=$(grep -c 'DEP[[:blank:]]1' $VMFB_logfile)
+DIScount=$(grep -c 'DIS[[:blank:]]1' $VMFB_logfile)
+MANcount=$(grep -c 'MAN[[:blank:]]DISPENSE' $VMFB_logfile)
+TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
 
 # Output to the UI
-echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount|IR$SIR_text|MTR$MTR_text"
+echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount|TMR$TMRcount|MAN$MANcount|IR$SIR_text|MTR$MTR_text"
 # 1 second delay between executions
 echo 1 1>&2
 
