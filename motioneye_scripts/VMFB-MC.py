@@ -124,6 +124,9 @@ def MANEvent(event="DISPENSE"):
 # and (re)starts the timed dispense interval timer
 def timedDispense(event="DISPENSE"):
 	nowTime=int(datetime.now().strftime("%H%M"))
+    # If you want to define multiple windows of timer operation
+    # of operation on certain days or dates you can do so in 
+    # the following if statement    
 	if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
 		sensorsOn("TMR")
 		motorOn("TMR")
