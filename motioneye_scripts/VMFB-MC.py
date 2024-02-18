@@ -45,27 +45,28 @@ def logEvent(eventType=None,event=None):
 		file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "\n")
 
 # When PIR signal goes high, enables sensors	
-def PIREvent(pin=None):
-	logEvent("PIR","+")
-	sensorsOn()
+def PIREvent(event="+"):
+	logEvent("PIR",event)
+	sensorsOn("PIR")
 
 # When sesors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low 	
-def updateMT(pin=None):
+def updateMT(event="-"):
 	if GPIO.input(MT) == 1:
 		GPIO.output(MT_SIG,1)
-		logEvent("MT","+")
+		event = "+"
+		logEvent("MT",event)
 	else:
 		GPIO.output(MT_SIG,0)
-		logEvent("MT","-")
+		logEvent("MT",event)
 
 # Suspends PBKA if it is enabled, turns on sensor LEDs, updates empty sensor status, 
 # and (re)starts sensor timeout timer	
-def sensorsOn(pin=None):
+def sensorsOn(event="PIR"):
 	if GPIO.input(PBKA) == 1:
 		PBKASuspend()
     	GPIO.output(SIR,1)
-	logEvent("SIR","+")
+	logEvent("SIR",event)
 	updateMT()
 	global sensorTimer
 	if sensorTimer.is_alive() == True:
@@ -74,7 +75,7 @@ def sensorsOn(pin=None):
 	sensorTimer.start()
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensot timeout timer, re-enables PbKA if it is enabled
-def sensorsOff(pin=None):
+def sensorsOff(event="TO"):
 	updateMT()
 	GPIO.output(SIR,0)
 	logEvent("SIR","-")
@@ -85,19 +86,19 @@ def sensorsOff(pin=None):
 		PBKAEnable()
 
 # When a deposit event is detected, turn on the dispense motor
-def DEPEvent(pin=None):
-	logEvent("DEP","+")
+def DEPEvent(event="+"):
+	logEvent("DEP",event)
 	motorOn()
 
 # When a dispense event is detected, turns off the dispense motor	
-def DISEvent(pin=None):
-	logEvent("DIS","+")
+def DISEvent(event="+"):
+	logEvent("DIS",event)
 	motorOff()
 	
 # Turns on the motor and (re)starts the motor timeout timer
-def motorOn(pin=None):
+def motorOn(event="DEP"):
 	GPIO.output(MTR,1)
-	logEvent("MTR","+")
+	logEvent("MTR",event)
 	global motorTimer
 	if motorTimer.is_alive() == True:
 		motorTimer.cancel()
@@ -105,27 +106,27 @@ def motorOn(pin=None):
 	motorTimer.start()
 
 # Turns off the motor and stops the motor timeout timer
-def motorOff(pin=None):
+def motorOff(event="DIS"):
 	GPIO.output(MTR,0)
-	logEvent("MTR","-")
+	logEvent("MTR",event)
 	global motorTimer
 	if motorTimer.is_alive() == True:
 		motorTimer.cancel()
 
 # When a manual dispense event is detected, turns on the sensors and starts the dispense motor
-def MANEvent(pin=None):
-	logEvent("MAN","+")
-	sensorsOn()
-	motorOn()
+def MANEvent(event="+"):
+	logEvent("MAN",event)
+	sensorsOn("MAN")
+	motorOn("MAN")
 
 # if current time is after the start time but before the end time, turns on the sensor LEDs and starts the motor
 # and (re)starts the timed dispense interval timer
-def timedDispense(pin=None):
+def timedDispense(event="+"):
 	nowTime=int(datetime.now().strftime("%H%M"))
 	if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
-		logEvent("TMR","+")
-		sensorsOn()
-		motorOn()
+		logEvent("TMR",event)
+		sensorsOn("TMR")
+		motorOn("TMR")
 	global timedDispenseTimer
 	if timedDispenseTimer.is_alive() == True:
 		timedDispenseTimer.cancel()
@@ -133,23 +134,24 @@ def timedDispense(pin=None):
  	timedDispenseTimer.start()
 
 # When the TMR pin changes state, (re)starts the timed dispense timer if it is high, stops it when it is low
-def TMREnable(pin=None):
+def TMREnable(event="OFF"):
 	global timedDispenseTimer
 	if GPIO.input(TMR) == 1:
-		logEvent("TMR","ON")
+		event="ON"
+		logEvent("TMR",event)
 		if timedDispenseTimer.is_alive() == True:
 			timedDispenseTimer.cancel()
 		timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
 		timedDispenseTimer.start()
 	else:
-		logEvent("TMR","OFF")
+		logEvent("TMR",event)
 		if timedDispenseTimer.is_alive() == True:
 			timedDispenseTimer.cancel()
 
 # Suspends the PBKA current sinking, stops PBKA timers
-def PBKASuspend(pin=None):
+def PBKASuspend(event="PIR"):
 	if GPIO.input(PBKA) == 1:
-		logEvent("PBKA","SUS")
+		logEvent("PBKA",event)
 		if PBKAOnTimer.is_alive() == True:
 			PBKAOnTimer.cancel()
 		if PBKAOffTimer.is_alive() == True:
@@ -157,16 +159,18 @@ def PBKASuspend(pin=None):
 
 # Then the PBKA pin changes state or sensors turn off when the PBKA is enabled,
 # (re)starts the PBKA Off timer to start the current sink cycle
-def PBKAEnable(pin=None):
+# When PBKA is disabled, it stops the PBKA timers
+def PBKAEnable(event="OFF"):
 	global PBKAOffTimer
 	if GPIO.input(PBKA) == 1:
-		logEvent("PBKA","ON")
+		event="ON"
+		logEvent("PBKA",event)
 		if PBKAOffTimer.is_alive() == True:
 			PBKAOffTimer.cancel()
 		PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 		PBKAOffTimer.start()
 	else:
-		logEvent("PBKA","OFF")
+		logEvent("PBKA",event)
 		if PBKAOnTimer.is_alive() == True:
 			PBKAOnTimer.cancel()
 		if PBKAOffTimer.is_alive() == True:
@@ -174,8 +178,8 @@ def PBKAEnable(pin=None):
 
 # Turns on sensor LEDs to sink current and keep powerbanks on, 
 # (re)starts timer to keep them on for number of seconds specified			
-def PBKAOn(pin=None):
-	logEvent("PBKA","+")
+def PBKAOn(event="+"):
+	logEvent("PBKA",event)
 	GPIO.output(SIR,1)
 	global PBKAOnTimer
 	if PBKAOnTimer.is_alive() == True:
@@ -184,8 +188,8 @@ def PBKAOn(pin=None):
 	PBKAOnTimer.start()
 
 # Turns off sensor LEDs, (re)starts timer to turn them back on
-def PBKAOff(pin=None):
-	logEvent("PBKA","-")
+def PBKAOff(event="-"):
+	logEvent("PBKA",event)
 	GPIO.output(SIR,0)
 	global PBKAOffTimer
 	if PBKAOffTimer.is_alive() == True:
