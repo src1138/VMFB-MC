@@ -92,7 +92,7 @@ MANcount=$(grep -c 'MAN[[:blank:]]DISPENSE' $VMFB_logfile)
 TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
 
 # Output to the UI
-echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount|TMR$TMRcount|MAN$MANcount|IR$SIR_text|MTR$MTR_text"
+echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount|TMR-$TMRcount|MAN-$MANcount|IR$SIR_text|MTR$MTR_text"
 # 1 second delay between executions
 echo 1 1>&2
 

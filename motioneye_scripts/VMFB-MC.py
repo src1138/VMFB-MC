@@ -34,8 +34,8 @@ MTR=11 		#PIN 23 - output to turn on dispense motor
 MT_SIG=5	#PIN 29 - output to indicate if hopper is (almost) empty
 
 # Configure GPIO inputs with pull-downs
-GPIO.setup([PIR,MT,MAN,PBKA,TMR,DEP,DIS], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
+GPIO.setup([PIR,MT,MAN,PBKA,TMR], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup([DEP,DIS], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Configure GPIO outputs and set them to low initially
 GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 
@@ -47,10 +47,11 @@ def logEvent(eventType=None,event=None):
 # When PIR signal goes high, enables sensors
 # When PIR goes low, it just logs the event	
 def PIREvent(event=0):
-    if GPIO.input(PIR) == 1:
-        sensorsOn("PIR")
-        event=1
+	if GPIO.input(PIR) == 1:
+		sensorsOn("PIR")
+		event=1
 	logEvent("PIR",event)
+
 # When sesors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low 	
 def updateMT(event="0"):
@@ -203,7 +204,7 @@ def PBKAOff(event="IDLE"):
 	PBKAOffTimer.start()
 
 # Set up GPIO interrupts
-GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent)	# Interrupt for PIR when signal goes low>high
+GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent)		# Interrupt for PIR when signal goes low>high
 GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent)	# Interrupt for Deposit when signal goes high>low - so it triggers only when the object has passed by the sensor
 GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent)	# Interupt for Dispense when signal goes high>low - so it triggers only when the nut/nugget/pellet/kibble has passed by the sensor
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent)	# Interrupt for manual dispense when signal goes low>high
