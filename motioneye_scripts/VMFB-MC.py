@@ -40,67 +40,66 @@ GPIO.setup([DEP,DIS], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 
 # Logs events as <timestamp>\t<eventType>\t<event>, casts areguments as strings 
-def logEvent(eventType=None,event=None):
+def logEvent(eventType=None,event=None,pin=None):
 	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "\n")
+		file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
 
 # When PIR signal goes high, enables sensors
 # When PIR goes low, it just logs the event	
-def PIREvent(event=0):
-	if GPIO.input(PIR) == 1:
-		sensorsOn("PIR")
-		event=1
-	logEvent("PIR",event)
+def PIREvent(pin=None):
+	logEvent("PIR",1,pin)
+	sensorsOn(pin)
 
 # When sesors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low 	
-def updateMT(event="0"):
+def updateMT(pin=None):
+	event=0
 	if GPIO.input(MT) == 1:
 		GPIO.output(MT_SIG,1)
-		event = "1"
+		event=1
 	else:
 		GPIO.output(MT_SIG,0)
-	logEvent("MT",event)
+	logEvent("MT",event,pin)
 
 # Suspends PBKA if it is enabled, turns on sensor LEDs, 
 # updates empty sensor status, and (re)starts sensor timeout timer	
-def sensorsOn(event="PIR"):
+def sensorsOn(pin=None):
+	logEvent("SIR","ON",pin)
 	if GPIO.input(PBKA) == 1:
-		PBKASuspend()
+		PBKASuspend(pin)
     	GPIO.output(SIR,1)
-	updateMT()
-	logEvent("SIR_ON",event)
+	updateMT(pin)
 	global sensorTimer
 	if sensorTimer.is_alive() == True:
 		sensorTimer.cancel()
 	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
 	sensorTimer.start()
 
-# Updates empty sensor status, turns off sensor LEDs, stops sensot timeout timer, re-enables PbKA if it is enabled
-def sensorsOff(event="TO"):
-	updateMT()
+# Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
+def sensorsOff(pin="TO"):
+	logEvent("SIR","OFF",pin)
+	updateMT(pin)
 	GPIO.output(SIR,0)
-	logEvent("SIR_OFF",event)
    	global sensorTimer
 	if sensorTimer.is_alive() == True:
 		sensorTimer.cancel()
 	if GPIO.input(PBKA) == 1:
-		PBKAEnable()
+		PBKAEnable(pin)
 
 # When a deposit event is detected, turn on the dispense motor
-def DEPEvent(event=1):
-	motorOn("DEP")
-	logEvent("DEP",event)
+def DEPEvent(pin=None):
+	logEvent("DEP",1,pin)
+	motorOn(pin)
 
 # When a dispense event is detected, turns off the dispense motor	
-def DISEvent(event=1):
-	motorOff("DIS")
-	logEvent("DIS",event)
+def DISEvent(pin=None):
+	logEvent("DIS",1,pin)
+	motorOff(pin)
 	
 # Turns on the motor and (re)starts the motor timeout timer
-def motorOn(event="DEP"):
+def motorOn(pin=None):
+	logEvent("MTR_ON",event,pin)
 	GPIO.output(MTR,1)
-	logEvent("MTR_ON",event)
 	global motorTimer
 	if motorTimer.is_alive() == True:
 		motorTimer.cancel()
@@ -108,31 +107,31 @@ def motorOn(event="DEP"):
 	motorTimer.start()
 
 # Turns off the motor and stops the motor timeout timer
-def motorOff(event="TO"):
+def motorOff(pin="TO"):
 	GPIO.output(MTR,0)
-	logEvent("MTR_OFF",event)
+	logEvent("MTR_OFF",event,pin)
 	global motorTimer
 	if motorTimer.is_alive() == True:
 		motorTimer.cancel()
 
 # When a manual dispense event is detected, turns on the sensors and starts the dispense motor
-def MANEvent(event="DISPENSE"):
-	sensorsOn("MAN")
-	motorOn("MAN")
-	logEvent("MAN",event)
+def MANEvent(pin=None):
+	logEvent("MAN","DISPENSE",pin)
+	sensorsOn(pin)
+	motorOn(pin)
 
 # if current time is equal to or after the start time and equal to
 # or before the end time, turns on the sensor LEDs and starts the 
 # motor and (re)starts the timed dispense interval timer
-def timedDispense(event="DISPENSE"):
+def timedDispense(pin="TO"):
 	nowTime=int(datetime.now().strftime("%H%M"))
-    # If you want to define multiple windows of timer operation
-    # of operation on certain days or dates you can do so in 
-    # the following if statement    
+	# If you want to define multiple windows of timer operation
+	# of operation on certain days or dates you can do so in 
+	# the following if statement    
 	if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
-		sensorsOn("TMR")
-		motorOn("TMR")
-		logEvent("TMR",event)
+		logEvent("TMR","DISPENSE",pin)
+		sensorsOn(pin)
+		motorOn(pin)
 	global timedDispenseTimer
 	if timedDispenseTimer.is_alive() == True:
 		timedDispenseTimer.cancel()
@@ -141,7 +140,8 @@ def timedDispense(event="DISPENSE"):
 
 # When the TMR pin changes state, (re)starts the timed dispense
 # timer if it is high, stops it when it is low
-def TMREnable(event="DISABLED"):
+def TMREnable(pin=None):
+	event="DISABLED"
 	global timedDispenseTimer
 	if GPIO.input(TMR) == 1:
 		event="ENABLED"
@@ -152,41 +152,41 @@ def TMREnable(event="DISABLED"):
 	else:
 		if timedDispenseTimer.is_alive() == True:
 			timedDispenseTimer.cancel()
-	logEvent("TMR",event)
+	logEvent("TMR",event,pin)
 
 # Suspends the PBKA current sinking, stops PBKA timers
-def PBKASuspend(event="SUSPENDED"):
+def PBKASuspend(pin=None):
 	if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
 		if PBKAOnTimer.is_alive() == True:
 			PBKAOnTimer.cancel()
 		if PBKAOffTimer.is_alive() == True:
 			PBKAOffTimer.cancel()
-		logEvent("PBKA",event)
+		logEvent("PBKA","SUSPEND",pin)
 
 # Then the PBKA pin changes state or sensors turn off when the PBKA is enabled,
 # (re)starts the PBKA Off timer to start the current sink cycle
 # When PBKA is disabled, it stops the PBKA timers
-def PBKAEnable(event="DISABLED"):
+def PBKAEnable(pin=None):
+	event="DISABLED"
 	global PBKAOffTimer
 	if GPIO.input(PBKA) == 1:
 		event="ENABLED"
-		logEvent("PBKA",event)
 		if PBKAOffTimer.is_alive() == True:
 			PBKAOffTimer.cancel()
 		PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 		PBKAOffTimer.start()
 	else:
-		logEvent("PBKA",event)
 		if PBKAOnTimer.is_alive() == True:
 			PBKAOnTimer.cancel()
 		if PBKAOffTimer.is_alive() == True:
 			PBKAOffTimer.cancel()
-
+	logEvent("PBKA",event,pin)
+        
 # Turns on sensor LEDs to sink current and keep powerbanks on, 
 # (re)starts timer to keep them on for number of seconds specified			
-def PBKAOn(event="SINK"):
+def PBKAOn(pin="TO"):
+	logEvent("PBKA","SINK",pin)
 	GPIO.output(SIR,1)
-	logEvent("PBKA",event)
 	global PBKAOnTimer
 	if PBKAOnTimer.is_alive() == True:
 		PBKAOnTimer.cancel()
@@ -194,9 +194,9 @@ def PBKAOn(event="SINK"):
 	PBKAOnTimer.start()
 
 # Turns off sensor LEDs, (re)starts timer to turn them back on
-def PBKAOff(event="IDLE"):
+def PBKAOff(pin="TO"):
+	logEvent("PBKA","IDLE",pin)
 	GPIO.output(SIR,0)
-	logEvent("PBKA",event)
 	global PBKAOffTimer
 	if PBKAOffTimer.is_alive() == True:
 		PBKAOffTimer.cancel()
@@ -204,7 +204,7 @@ def PBKAOff(event="IDLE"):
 	PBKAOffTimer.start()
 
 # Set up GPIO interrupts
-GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent)		# Interrupt for PIR when signal goes low>high
+GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent)	# Interrupt for PIR when signal goes low>high
 GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent)	# Interrupt for Deposit when signal goes high>low - so it triggers only when the object has passed by the sensor
 GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent)	# Interupt for Dispense when signal goes high>low - so it triggers only when the nut/nugget/pellet/kibble has passed by the sensor
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent)	# Interrupt for manual dispense when signal goes low>high
