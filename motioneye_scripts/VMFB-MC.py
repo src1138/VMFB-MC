@@ -77,8 +77,8 @@ def sensorsOn(pin=None):
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
-	logEvent("SIR","OFF",pin)
 	updateMT(pin)
+	logEvent("SIR","OFF",pin)
 	GPIO.output(SIR,0)
    	global sensorTimer
 	if sensorTimer.is_alive() == True:
@@ -98,7 +98,7 @@ def DISEvent(pin=None):
 	
 # Turns on the motor and (re)starts the motor timeout timer
 def motorOn(pin=None):
-	logEvent("MTR_ON",event,pin)
+	logEvent("MTR","ON",pin)
 	GPIO.output(MTR,1)
 	global motorTimer
 	if motorTimer.is_alive() == True:
@@ -108,8 +108,8 @@ def motorOn(pin=None):
 
 # Turns off the motor and stops the motor timeout timer
 def motorOff(pin="TO"):
+	logEvent("MTR","OFF",pin)
 	GPIO.output(MTR,0)
-	logEvent("MTR_OFF",event,pin)
 	global motorTimer
 	if motorTimer.is_alive() == True:
 		motorTimer.cancel()
@@ -132,6 +132,8 @@ def timedDispense(pin="TO"):
 		logEvent("TMR","DISPENSE",pin)
 		sensorsOn(pin)
 		motorOn(pin)
+	else:
+		logEvent("TMR","SUSPENDED",pin)
 	global timedDispenseTimer
 	if timedDispenseTimer.is_alive() == True:
 		timedDispenseTimer.cancel()
