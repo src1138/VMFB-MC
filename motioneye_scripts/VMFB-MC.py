@@ -205,13 +205,13 @@ def PBKAOff(pin="TO"):
 	PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 	PBKAOffTimer.start()
 
-# Set up GPIO interrupts
-GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent)	# Interrupt for PIR when signal goes low>high
-GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent)	# Interrupt for Deposit when signal goes high>low - so it triggers only when the object has passed by the sensor
-GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent)	# Interupt for Dispense when signal goes high>low - so it triggers only when the nut/nugget/pellet/kibble has passed by the sensor
-GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent)	# Interrupt for manual dispense when signal goes low>high
-GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable)	# Interupt for timer enable when pin changes state
-GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable)	# Interrupt for PBKA enable when pin changes state
+# Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, but really just needed for DEP and DIS when using a comparator like LM393
+GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Interrupt for PIR when signal goes low>high
+GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 100)	# Interrupt for Deposit when signal goes low>high
+GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 100)	# Interupt for Dispense when signal goes low>high
+GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense when signal goes low>high
+GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable when pin changes state
+GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable when pin changes state
 	
 # Set up timers
 # Timer for sensors, calls sensorsOff when sensorTimeout seconds have passed
