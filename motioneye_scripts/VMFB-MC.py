@@ -75,6 +75,10 @@ def sensorsOn(pin=None):
 	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
 	sensorTimer.start()
 	# Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
+        # Removing events first since adding them when already added (manual dispense when sensors are already on)
+	# raises an exception and halts execution of the thread
+	GPIO.remove_event_detect(DEP)
+        GPIO.remove_event_detect(DIS)
 	GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
 	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
 
