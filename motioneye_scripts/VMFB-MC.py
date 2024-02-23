@@ -74,6 +74,9 @@ def sensorsOn(pin=None):
 		sensorTimer.cancel()
 	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
 	sensorTimer.start()
+	# Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
+	GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
+	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
@@ -85,6 +88,9 @@ def sensorsOff(pin="TO"):
 		sensorTimer.cancel()
 	if GPIO.input(PBKA) == 1:
 		PBKAEnable(pin)
+	# Remove event detect for DEP and DIS
+	GPIO.remove_event_detect(DEP)
+	GPIO.remove_event_detect(DIS)
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
@@ -205,10 +211,13 @@ def PBKAOff(pin="TO"):
 	PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 	PBKAOffTimer.start()
 
-# Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, but really just needed for DEP and DIS when using a comparator like LM393
+# Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, 
+# except DEP and DIS which get 1000ms - needed when using a comparator like
+# LM393 to avoid multiple triggers that pollute the log and counts
+# Moved adding DEP and DIS interrupts to sensorsOn and remove them in sensorsOff
 GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Interrupt for PIR when signal goes low>high
-GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 100)	# Interrupt for Deposit when signal goes low>high
-GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 100)	# Interupt for Dispense when signal goes low>high
+# GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000)	# Interrupt for Deposit when signal goes low>high
+# GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000)	# Interupt for Dispense when signal goes low>high
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense when signal goes low>high
 GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable when pin changes state
 GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable when pin changes state
