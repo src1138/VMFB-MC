@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO		# for GPIO access
 from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
+import urllib2			# to handle http requests to enable and disable motioneye motion detection
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
@@ -81,6 +82,9 @@ def sensorsOn(pin=None):
         GPIO.remove_event_detect(DIS)
 	GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
 	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
+	# if the trigger came from the PIR, enable motion detection in motioneye and log the response
+	if pin == 27:
+		logEvent("MOD",urllib2.urlopen("http://localhost:7999/1/detection/start").read(),pin)
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
@@ -95,6 +99,9 @@ def sensorsOff(pin="TO"):
 	# Remove event detect for DEP and DIS
 	GPIO.remove_event_detect(DEP)
 	GPIO.remove_event_detect(DIS)
+	# end any recording disable motion detection in motioneye and log the response
+	logevent("MOD",urllib2.urlopen("http://localhost:7999/1/action/eventend").read(),pin)
+	logevent("MOD",urllib2.urlopen("http://localhost:7999/1/detection/pause").read(),pin)
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
