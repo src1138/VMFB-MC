@@ -11,9 +11,6 @@ DIS=10 #RPi ZeroW Pin #19
 PBKA=19 #RPi ZeroW Pin #35
 TMR=13 #RPi ZeroW Pin #33
 
-# Get the values for the last script execution
-prev_valEMT=$(cat /data/log/prev_valEMT)
-
 # Get the current pin values
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)

@@ -69,7 +69,6 @@ def sensorsOn(pin=None):
 	if GPIO.input(PBKA) == 1:
 		PBKASuspend(pin)
     	GPIO.output(SIR,1)
-	updateMT(pin)
 	global sensorTimer
 	if sensorTimer.is_alive() == True:
 		sensorTimer.cancel()
@@ -82,7 +81,8 @@ def sensorsOn(pin=None):
         GPIO.remove_event_detect(DIS)
 	GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
 	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
-	# if the trigger came from the PIR, enable motion detection in motioneye and log the response
+	updateMT(pin)
+	# if the trigger came from the PIR, enable motion detection in motioneye and log the event
 	if pin == 27:
 		urllib2.urlopen("http://localhost:7999/1/detection/start").read()
                 logEvent("MOD","START",pin)
