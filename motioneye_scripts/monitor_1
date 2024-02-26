@@ -28,38 +28,38 @@ valTMR=$(cat /sys/class/gpio/gpio$TMR/value)
 
 if [ "$valPIR" == "1" ]
 then
-    PIR_text="+"
+    PIR_text="<font color=#FF0000>PIR</font>"
 else
-    PIR_text="-"
+    PIR_text="PIR"
 fi
  
 if [ "$valSIR" == "1" ]
 then
-    SIR_text="+"
+    SIR_text="<font color=#FF0000>SIR</font>"
 else
-    SIR_text="-"
+    SIR_text="SIR"
 fi
 
 if [ "$valMTR" == "1" ]
 then
-    MTR_text="+"
+    MTR_text="<font color="#FF0000">MTR</font>"
 else
-    MTR_text="-"
+    MTR_text="MTR"
 fi
 
 # Deposit and Dispense events are too short to catch unless there is a jam
 if [ "$valDIS" == "1" ]
 then
-    DIS_text="+"
+    DIS_text="<font color=#FF0000>DIS</font>"
 else
-    DIS_text="-"
+    DIS_text="DIS"
 fi
 
 if [ "$valDEP" == "1" ]
 then
-    DEP_text="+"
+    DEP_text="<font color=#FF0000>DEP</font>"
 else
-    DEP_text="-"
+    DEP_text="DEP"
 fi
 
 if [ "$valEMT" == "1" ]
@@ -92,7 +92,7 @@ MANcount=$(grep -c 'MAN[[:blank:]]DISPENSE' $VMFB_logfile)
 TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
 
 # Output to the UI
-echo "$PBKA_text$TMR_text$EMT_text|PIR$PIR_text$PIRcount|DEP$DEP_text$DEPcount|DIS$DIS_text$DIScount|TMR-$TMRcount|MAN-$MANcount|IR$SIR_text|MTR$MTR_text"
+echo "$PBKA_text$TMR_text$EMT_text|$PIR_text<sup>$PIRcount</sup>|$DEP_text<sup>$DEPcount</sup>|$DIS_text<sup>$DIScount</sup>|TMR<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$SIR_text|$MTR_text"
 # 1 second delay between executions
 echo 1 1>&2
 

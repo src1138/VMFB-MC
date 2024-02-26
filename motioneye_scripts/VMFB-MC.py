@@ -100,8 +100,13 @@ def sensorsOff(pin="TO"):
 	GPIO.remove_event_detect(DEP)
 	GPIO.remove_event_detect(DIS)
 	# end any recording disable motion detection in motioneye and log the response
+<<<<<<< HEAD
         logEvent("MOD",urllib2.urlopen("http://localhost:7999/1/detection/pause").read(),pin)
 	logEvent("MOD",urllib2.urlopen("http://localhost:7999/1/action/eventend").read(),pin)
+=======
+	logevent("MOD",urllib2.urlopen("http://localhost:7999/1/action/eventend").read(),pin)
+	logevent("MOD",urllib2.urlopen("http://localhost:7999/1/detection/pause").read(),pin)
+>>>>>>> 0bf6f77af4557f491a3846a51b275cf8ee2c3e18
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
