@@ -11,6 +11,9 @@ DIS=10 #RPi ZeroW Pin #19
 PBKA=19 #RPi ZeroW Pin #35
 TMR=13 #RPi ZeroW Pin #33
 
+# Get the values for the last script execution
+prev_valEMT=$(cat /data/log/prev_valEMT)
+
 # Get the current pin values
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
 valSIR=$(cat /sys/class/gpio/gpio$SIR/value)
@@ -90,7 +93,6 @@ TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
 
 # Output to the UI
 echo "$MT_text$PBKA_text $PIR_text<sup>$PIRcount</sup>|$DEP_text<sup>$DEPcount</sup>|$DIS_text<sup>$DIScount</sup>|$TMR_text<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$SIR_text|$MTR_text"
-
 # 1 second delay between executions
 echo 1 1>&2
 
