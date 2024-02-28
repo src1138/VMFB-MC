@@ -62,23 +62,23 @@ else
     DEP_text="DEP"
 fi
 
-if [ "$valEMT" == "1" ]
+if [ "$valMT" == "1" ]
 then
-    EMT_text=""
+    MT_text=""
 else
-    EMT_text="&#129372;"
+    MT_text="&#129372;"
 fi
 
 if [ "$valTMR" == "1" ] 
 then
-	TMR_text="&#9202;"
+	TMR_text="<font color=#FF0000>TMR</font>"
 else
-	TMR_text=""
+	TMR_text="TMR"
 fi
 
 if [ "$valPBKA" == "1" ] 
 then
-	PBKA_text="&#128498;"
+	PBKA_text="<font color=#FFFF00>&#8961;</font>"
 else
 	PBKA_text=""
 fi
@@ -92,7 +92,7 @@ MANcount=$(grep -c 'MAN[[:blank:]]DISPENSE' $VMFB_logfile)
 TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
 
 # Output to the UI
-echo "$PBKA_text$TMR_text$EMT_text|$PIR_text<sup>$PIRcount</sup>|$DEP_text<sup>$DEPcount</sup>|$DIS_text<sup>$DIScount</sup>|TMR<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$SIR_text|$MTR_text"
+echo "$MT_text$PBKA_text $PIR_text<sup>$PIRcount</sup>|$DEP_text<sup>$DEPcount</sup>|$DIS_text<sup>$DIScount</sup>|$TMR_text<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$SIR_text|$MTR_text"
 # 1 second delay between executions
 echo 1 1>&2
 
