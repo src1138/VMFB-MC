@@ -78,7 +78,7 @@ fi
 
 if [ "$valPBKA" == "1" ] 
 then
-	PBKA_text="<font color=#FFFF00>&#8961;</font>"
+	PBKA_text="&#8767;"
 else
 	PBKA_text=""
 fi
