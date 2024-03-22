@@ -5,7 +5,7 @@ from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
 import urllib2			# to handle http requests to enable and disable motioneye motion detection
-import os, sys 			# needed to execute system commands to start/stop motioneye server
+import os 			# needed to execute system commands to start/stop motioneye server
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
