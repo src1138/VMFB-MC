@@ -5,6 +5,7 @@ from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
 import urllib2			# to handle http requests to enable and disable motioneye motion detection
+import os, sys 			# needed to execute system commands to start/stop motioneye server
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
@@ -82,8 +83,10 @@ def sensorsOn(pin=None):
 	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
 	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
 	updateMT(pin)
-	# if the trigger came from the PIR, enable motion detection in motioneye and log the event
+	# if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
 	if pin == 27:
+		# enable the camera 
+		# enableCamera(pin)
 		urllib2.urlopen("http://localhost:7999/1/detection/start").read()
                 logEvent("MOD","START",pin)
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
@@ -104,6 +107,8 @@ def sensorsOff(pin="TO"):
         logEvent("MOD","PAUSE",pin)
 	urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
 	logEvent("REC","STOP",pin)
+	# disable the camera to save power while sensors are off
+	# disableCamera(pin)
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
@@ -223,6 +228,67 @@ def PBKAOff(pin="TO"):
 		PBKAOffTimer.cancel()
 	PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 	PBKAOffTimer.start()
+
+# Disable camera to save power
+def disableCamera(pin=None):
+	# disable camera in camera-1.conf
+	reading_file = open("camera-1.conf", "r")
+	new_file_content = ""
+	for line in reading_file:
+    		stripped_line = line.strip()
+    		new_line = stripped_line.replace("# @enabled on", "# @enabled off")
+    		new_file_content += new_line +"\n"
+	reading_file.close()
+	writing_file = open("camera-1.conf", "w")
+	writing_file.write(new_file_content)
+	writing_file.close()
+
+	# disable camera in motion.conf
+	reading_file = open("motion.conf", "r")
+	new_file_content = ""
+	for line in reading_file:
+    		stripped_line = line.strip()
+    		new_line = stripped_line.replace("camera camera-1.conf", "")
+    		new_file_content += new_line +"\n"
+	reading_file.close()
+	writing_file = open("motion.conf", "w")
+	writing_file.write(new_file_content)
+	writing_file.close()
+	# restart the motioneye server
+	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
+	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
+	logEvent("CAM","DISABLE",pin)
+
+def enableCamera(pin=None): 
+	# enable camera in camera-1.conf
+	reading_file = open("camera-1.conf", "r")
+	new_file_content = ""
+	for line in reading_file:
+    		stripped_line = line.strip()
+    		new_line = stripped_line.replace("# @enabled off", "# @enabled on")
+    		new_file_content += new_line +"\n"
+	reading_file.close()
+	writing_file = open("camera-1.conf", "w")
+	writing_file.write(new_file_content)
+	writing_file.close()
+
+	# enable camera in motioneye.conf
+	reading_file = open("motion.conf", "r")
+	new_file_content = ""
+	for line in reading_file:
+    		stripped_line = line.strip()
+    		new_line = stripped_line.replace("camera camera-1.conf", "")
+		if new_line != "":
+			new_file_content += new_line +"\n"
+	new_file_content += "camera camera-1.conf\n"
+	reading_file.close()
+	writing_file = open("motion.conf", "w")
+	writing_file.write(new_file_content)
+	writing_file.close()
+	# restart the motioneye server
+	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
+	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
+	logEvent("CAM","ENABLE",pin)
 
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, 
 # except DEP and DIS which get 1000ms - needed when using a comparator like
