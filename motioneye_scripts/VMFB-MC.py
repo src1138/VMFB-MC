@@ -5,7 +5,7 @@ from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
 import urllib2			# to handle http requests to enable and disable motioneye motion detection
-import os 			# needed to execute system commands to start/stop motioneye server
+import os, sys 			# needed to execute system commands to start/stop motioneye server
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
@@ -257,7 +257,7 @@ def disableCamera(pin=None):
 	# restart the motioneye server
 	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
 	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
-	logEvent("CAM",”DISABLE”,pin)
+	logEvent("CAM","DISABLE",pin)
 
 def enableCamera(pin=None): 
 	# enable camera in camera-1.conf
@@ -278,7 +278,7 @@ def enableCamera(pin=None):
 	for line in reading_file:
     		stripped_line = line.strip()
     		new_line = stripped_line.replace("camera camera-1.conf", "")
-		if new_line != "" then:
+		if new_line != "":
 			new_file_content += new_line +"\n"
 	new_file_content += "camera camera-1.conf\n"
 	reading_file.close()
@@ -288,7 +288,7 @@ def enableCamera(pin=None):
 	# restart the motioneye server
 	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
 	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
-	logEvent("CAM",”ENABLE”,pin)
+	logEvent("CAM","ENABLE",pin)
 
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, 
 # except DEP and DIS which get 1000ms - needed when using a comparator like
