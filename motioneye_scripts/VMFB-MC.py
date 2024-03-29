@@ -311,6 +311,10 @@ PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
 # Timer for PBKA interval between current sinks, waits pbkaOffPeriod seconds between sinks
 PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
+# Initialize MT Sensor by briefly enabling the sensors
+sensorsOn("INIT")
+sensorsOff("INIT")
+
 # Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function 
 while True:
 	time.sleep(1e6) 
