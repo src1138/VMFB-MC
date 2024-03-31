@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Give VMFB-MC.py a chance to set up it's interrupts and timers
+sleep 1
+
 # If you want the PBKA enabled on startup 
 # (in case of reboot, etc.), uncomment the following five lines
 # PBKA_E=20 #RPi ZeroW Pin #38

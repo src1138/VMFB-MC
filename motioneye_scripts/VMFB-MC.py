@@ -5,13 +5,13 @@ from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
 import urllib2			# to handle http requests to enable and disable motioneye motion detection
-import os			# needed to execute system commands to start/stop motioneye server
+import os 			# needed to execute system commands to start/stop motioneye server
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
 motorTimeout=10			# soconds dispenser motor stays on before it times out
 timedDispensePeriod=3600	# seconds between timed dispense when it is enabled
-timedDispenseStartTime=800	# time of day timed dispense will start when enabled (HHMM format, don't use leading zeros)
+timedDispenseStartTime=600	# time of day timed dispense will start when enabled (HHMM format, don't use leading zeros)
 timedDispenseEndTime=1700	# time of day timed dispense will stop when enabled (HHMM format, don't use leading zeros)
 pbkaOnPeriod=1			# seconds the PBKA will turn the sensors on to sink current to keep a powerbank on
 pbkaOffPeriod=10		# seconds between PBKA current sinks
@@ -76,12 +76,12 @@ def sensorsOn(pin=None):
 	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
 	sensorTimer.start()
 	# Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
-    # Removing events first since adding them when already added (manual dispense when sensors are already on)
+        # Removing events first since adding them when already added (manual dispense when sensors are already on)
 	# raises an exception and halts execution of the thread
 	GPIO.remove_event_detect(DEP)
         GPIO.remove_event_detect(DIS)
-	GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
-	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
+	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
+	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
 	updateMT(pin)
 	# if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
 	if pin == 27:
