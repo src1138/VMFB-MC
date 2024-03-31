@@ -13,8 +13,16 @@ sleep 1
 
 # If you want timed dispense enabled on startup 
 # (in case of reboot, etc.), uncomment the following five lines
+<<<<<<< HEAD
+# TMR_E=16 #RPi ZeroW Pin #36
+# test -e /sys/class/gpio/gpio$TMR_E ||
+#  (echo $TMR_E > /sys/class/gpio/export \
+#   && echo out > /sys/class/gpio/gpio$TMR_E/direction)
+# echo "1" >| /sys/class/gpio/gpio$TMR_E/value
+=======
 TMR_E=16 #RPi ZeroW Pin #36
 test -e /sys/class/gpio/gpio$TMR_E ||
  (echo $TMR_E > /sys/class/gpio/export \
  && echo out > /sys/class/gpio/gpio$TMR_E/direction)
 echo "1" >| /sys/class/gpio/gpio$TMR_E/value
+>>>>>>> 48ca1b1c9f2e730bb66c9f30eef177b8d3436507
