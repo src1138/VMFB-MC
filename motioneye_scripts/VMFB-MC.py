@@ -15,6 +15,8 @@ timedDispenseStartTime=600	# time of day timed dispense will start when enabled 
 timedDispenseEndTime=1700	# time of day timed dispense will stop when enabled (HHMM format, don't use leading zeros)
 pbkaOnPeriod=1			# seconds the PBKA will turn the sensors on to sink current to keep a powerbank on
 pbkaOffPeriod=10		# seconds between PBKA current sinks
+defaultEnableTimer=1    # set to 1 to enable timer on startup
+defaultPBKATimer=1      # set to 1 to enable PBKA on startup
 
 # Initialize RPi GPIO
 # GPIO.setmode(GPIO.BOARD)	# uses board pin numbers to reference pins
@@ -34,6 +36,8 @@ DEP=24 		#PIN 18 - input to sense a dispense event
 SIR=25 		#PIN 22 - output to turn on IR sensor LEDs
 MTR=11 		#PIN 23 - output to turn on dispense motor
 MT_SIG=5	#PIN 29 - output to indicate if hopper is (almost) empty
+TMR_SIG=16  #PIN 36 - output to indicate if timed dispense is enabled
+PBKA_SIG=20 #PIN 38 - output to indicate if PBKA is enabled
 
 # Configure GPIO inputs with pull-downs
 GPIO.setup([PIR,MT,MAN,PBKA,TMR], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -310,6 +314,12 @@ timedDispenseTimer = threading.Timer(timedDispensePeriod, timedDispense)
 PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
 # Timer for PBKA interval between current sinks, waits pbkaOffPeriod seconds between sinks
 PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
+
+# Initialize timed dispense and PBKA enable/disable
+if defaultEnableTimer == 1:
+    os.system('echo "1" >| /sys/class/gpio/gpio'+TIMER_SIG+'/value')
+if defaultPBKATimer == 1:
+    os.system('echo "1" >| /sys/class/gpio/gpio'+PBKA_SIG+'/value')
 
 # Initialize MT Sensor by briefly enabling the sensors
 sensorsOn("INIT")
