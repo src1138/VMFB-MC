@@ -2032,7 +2032,7 @@
     (property "Reference" "R3" (at 114.3 168.91 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Value" "1K" (at 114.3 171.45 90)
+    (property "Value" "220R" (at 115.57 171.45 90)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" (at 113.03 169.672 90)
