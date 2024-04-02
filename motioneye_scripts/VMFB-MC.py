@@ -317,7 +317,7 @@ PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
 # Initialize timed dispense and PBKA enable/disable
 if defaultEnableTimer == 1:
-    os.system('echo "1" >| /sys/class/gpio/gpio'+TIMER_SIG+'/value')
+    os.system('echo "1" >| /sys/class/gpio/gpio'+TMR_SIG+'/value')
 if defaultPBKATimer == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+PBKA_SIG+'/value')
 
