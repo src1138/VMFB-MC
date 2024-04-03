@@ -80,24 +80,24 @@ def sensorsOn(pin=None):
 	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
 	sensorTimer.start()
 	# Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
-        # Removing events first since adding them when already added (manual dispense when sensors are already on)
+	# Removing events first since adding them when already added (manual dispense when sensors are already on)
 	# raises an exception and halts execution of the thread
 	GPIO.remove_event_detect(DEP)
-        GPIO.remove_event_detect(DIS)
-	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
-	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
+	GPIO.remove_event_detect(DIS)
+	GPIO.add_event_detect(DEP, GPIO.FALLING, DEPEvent, 1000) # Interrupt for Deposit when signal goes high>low
+	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) # Interupt for Dispense when signal goes high>low
 	updateMT(pin)
 	# if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
 	if pin == 27:
 		# enable the camera 
 		# enableCamera(pin)
 		urllib2.urlopen("http://localhost:7999/1/detection/start").read()
-                logEvent("MOD","START",pin)
+		logEvent("MOD","START",pin)
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
 	# Some PIR sensors stay on until they don't detect anything
-	# this will check again to make sure the PIR is not triggering before disabling the sensors
+	# this will check to make sure the PIR is not triggering before disabling the sensors
 	if GPIO.input(PIR) == 1:
 		sensorsOn(PIR)
 	else:
