@@ -93,26 +93,32 @@ def sensorsOn(pin=None):
 		# enableCamera(pin)
 		urllib2.urlopen("http://localhost:7999/1/detection/start").read()
                 logEvent("MOD","START",pin)
+
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
-	updateMT(pin)
-	logEvent("SIR","OFF",pin)
-	GPIO.output(SIR,0)
-   	global sensorTimer
-	if sensorTimer.is_alive() == True:
-		sensorTimer.cancel()
-	if GPIO.input(PBKA) == 1:
-		PBKAEnable(pin)
-	# Remove event detect for DEP and DIS
-	GPIO.remove_event_detect(DEP)
-	GPIO.remove_event_detect(DIS)
-	# end any recording disable motion detection in motioneye and log the response
-	urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
-        logEvent("MOD","PAUSE",pin)
-	urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
-	logEvent("REC","STOP",pin)
-	# disable the camera to save power while sensors are off
-	# disableCamera(pin)
+	# Some PIR sensors stay on until they don't detect anything
+	# this will check again to make sure the PIR is not triggering before disabling the sensors
+	if GPIO.input(PIR) == 1:
+		sensorsOn(PIR)
+	else:
+		updateMT(pin)
+		logEvent("SIR","OFF",pin)
+		GPIO.output(SIR,0)
+	   	global sensorTimer
+		if sensorTimer.is_alive() == True:
+			sensorTimer.cancel()
+		if GPIO.input(PBKA) == 1:
+			PBKAEnable(pin)
+		# Remove event detect for DEP and DIS
+		GPIO.remove_event_detect(DEP)
+		GPIO.remove_event_detect(DIS)
+		# end any recording disable motion detection in motioneye and log the response
+		urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
+		logEvent("MOD","PAUSE",pin)
+		urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
+		logEvent("REC","STOP",pin)
+		# disable the camera to save power while sensors are off
+		# disableCamera(pin)
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
