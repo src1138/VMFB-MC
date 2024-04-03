@@ -333,4 +333,4 @@ sensorsOff("INIT")
 
 # Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function 
 while True:
-	time.sleep(1e9) 
+	time.sleep(1e9) # 1157 days
