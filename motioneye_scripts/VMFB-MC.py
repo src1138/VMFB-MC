@@ -84,11 +84,11 @@ def sensorsOn(pin=None):
 	# raises an exception and halts execution of the thread
 	GPIO.remove_event_detect(DEP)
         GPIO.remove_event_detect(DIS)
-	# Interrupt for Deposit and Dispense when signal goes high>low. 
-	# This works well for comparators since it triggers DEPOSIT once the object has passed,
-	# and DISPENSE as soon as an object is seen. For op-amps, a RISING edge might be better.
+	# Interrupt for Deposit and Dispense when signal goes low>high. 
+	# It triggers as soon as an object is seen, and will not
+	# trigger again until the pin goes low, then high again
 	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) 
-	GPIO.add_event_detect(DIS, GPIO.FALLING, DISEvent, 1000) 
+	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
 	updateMT(pin)
 	# if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
 	if pin == 27:
