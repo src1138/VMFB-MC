@@ -73,17 +73,17 @@ def sensorsOn(pin=None):
 	logEvent("SIR","ON",pin)
 	if GPIO.input(PBKA) == 1:
 		PBKASuspend(pin)
-    	GPIO.output(SIR,1)
+	GPIO.output(SIR,1)
 	global sensorTimer
 	if sensorTimer.is_alive() == True:
 		sensorTimer.cancel()
 	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
 	sensorTimer.start()
 	# Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
-        # Removing events first since adding them when already added (manual dispense when sensors are already on)
+	# Removing events first since adding them when already added (manual dispense when sensors are already on)
 	# raises an exception and halts execution of the thread
 	GPIO.remove_event_detect(DEP)
-        GPIO.remove_event_detect(DIS)
+	GPIO.remove_event_detect(DIS)
 	# Interrupt for Deposit and Dispense when signal goes low>high. 
 	# It triggers as soon as an object is seen, and will not
 	# trigger again until the pin goes low, then high again
@@ -96,7 +96,7 @@ def sensorsOn(pin=None):
 		# enableCamera(pin)
 		# enable motion detection
 		urllib2.urlopen("http://localhost:7999/1/detection/start").read()
-                logEvent("MOD","START",pin)
+		logEvent("MOD","START",pin)
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
@@ -108,7 +108,7 @@ def sensorsOff(pin="TO"):
 		updateMT(pin)
 		logEvent("SIR","OFF",pin)
 		GPIO.output(SIR,0)
-	   	global sensorTimer
+		global sensorTimer
 		if sensorTimer.is_alive() == True:
 			sensorTimer.cancel()
 		if GPIO.input(PBKA) == 1:
@@ -175,8 +175,8 @@ def timedDispense(pin="TO"):
 	global timedDispenseTimer
 	if timedDispenseTimer.is_alive() == True:
 		timedDispenseTimer.cancel()
- 	timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
- 	timedDispenseTimer.start()
+	timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
+	timedDispenseTimer.start()
 
 # When the TMR pin changes state, (re)starts the timed dispense
 # timer if it is high, stops it when it is low
@@ -249,13 +249,13 @@ def disableCamera(pin=None):
 	reading_file = open("motion.conf", "r")
 	new_file_content = ""
 	for line in reading_file:
-    		stripped_line = line.strip()
-    		new_line = stripped_line.replace("camera camera-1.conf", "")
-    		new_file_content += new_line +"\n"
+		stripped_line = line.strip()
+		new_line = stripped_line.replace("camera camera-1.conf", "")
+		new_file_content += new_line +"\n"
 	reading_file.close()
 	writing_file = open("motion.conf", "w")
-        for line in new_file_content:
-                writing_file.write(line)
+	for line in new_file_content:
+		writing_file.write(line)
 	writing_file.close()
 	# restart the motioneye server
 	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
@@ -267,15 +267,15 @@ def enableCamera(pin=None):
 	reading_file = open("motion.conf", "r")
 	new_file_content = ""
 	for line in reading_file:
-    		stripped_line = line.strip()
-    		new_line = stripped_line.replace("camera camera-1.conf", "")
+		stripped_line = line.strip()
+		new_line = stripped_line.replace("camera camera-1.conf", "")
 		if new_line != "":
 			new_file_content += new_line +"\n"
 	new_file_content += "camera camera-1.conf\n"
 	reading_file.close()
 	writing_file = open("motion.conf", "w")
-        for line in new_file_content:
-                writing_file.write(line)
+	for line in new_file_content:
+		writing_file.write(line)
 	writing_file.close()
 	# restart the motioneye server
 	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
@@ -303,11 +303,14 @@ PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
 # Timer for PBKA interval between current sinks, waits pbkaOffPeriod seconds between sinks
 PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
+# Log start of script
+logEvent("SCRIPT","START","INIT")
+
 # Initialize timed dispense and PBKA enable/disable
 if defaultEnableTimer == 1:
-    os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
+	os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
 if defaultEnablePBKA == 1:
-    os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
+	os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
 
 # Initialize MT Sensor by briefly enabling the sensors
 sensorsOn("INIT")
