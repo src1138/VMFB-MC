@@ -87,6 +87,8 @@ def sensorsOn(pin=None):
 	# Interrupt for Deposit and Dispense when signal goes low>high. 
 	# It triggers as soon as an object is seen, and will not
 	# trigger again until the pin goes low, then high again
+    # adding a 1000ms debounce because LM393 comparators are jittery
+    # for LM358 op-amps, a 100ms debounce should be sufficient
 	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) 
 	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
 	updateMT(pin)
