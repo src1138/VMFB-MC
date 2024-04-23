@@ -134,8 +134,8 @@ def DEPEvent(pin=None):
 	# If there is something triggering the dispense sensor 
 	# when a deposit is sensed, log it and don't turn on the motor
 	if GPIO.input(DIS) == 0:
-        	logEvent("DEP",1,pin)
-        	motorOn(pin)
+		logEvent("DEP",1,pin)
+		motorOn(pin)
 	else:
 		logEvent("DEP","DISJAM",pin)
 
