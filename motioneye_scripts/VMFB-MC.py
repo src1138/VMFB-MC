@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO		# for GPIO access
 from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
-import urllib2			# to handle http requests to enable and disable motioneye motion detection
+# import urllib2			# to handle http requests to enable and disable motioneye motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
 
 # Configuration variables
@@ -87,8 +87,8 @@ def sensorsOn(pin=None):
 	# Interrupt for Deposit and Dispense when signal goes low>high. 
 	# It triggers as soon as an object is seen, and will not
 	# trigger again until the pin goes low, then high again
-    # adding a 1000ms debounce because LM393 comparators are jittery
-    # for LM358 op-amps, a 100ms debounce should be sufficient
+	# adding a 1000ms debounce because LM393 comparators are jittery
+	# for LM358 op-amps, a 100ms debounce should be sufficient
 	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) 
 	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
 	updateMT(pin)
@@ -97,7 +97,8 @@ def sensorsOn(pin=None):
 		# enable the camera 
 		# enableCamera(pin)
 		# enable motion detection
-		urllib2.urlopen("http://localhost:7999/1/detection/start").read()
+		# urllib2.urlopen("http://localhost:7999/1/detection/start").read()
+		os.system('curl http://localhost:7999/1/detection/start')
 		logEvent("MOD","START",pin)
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
@@ -119,22 +120,24 @@ def sensorsOff(pin="TO"):
 		GPIO.remove_event_detect(DEP)
 		GPIO.remove_event_detect(DIS)
 		# end any recording disable motion detection in motioneye and log the response
-		urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
+		# urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
+		os.system('curl http://localhost:7999/1/detection/pause') 
 		logEvent("MOD","PAUSE",pin)
-		urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
+		# urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
+		os.system('curl http://localhost:7999/1/action/eventend')
 		logEvent("REC","STOP",pin)
 		# disable the camera to save power while sensors are off
 		# disableCamera(pin)
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
-    # If there is something triggering the dispense sensor 
-    # when a deposit is sensed, log it and don't turn on the motor
-    if GPIO.input(DIS) == 0:
-        logEvent("DEP",1,pin)
-        motorOn(pin)
-    else:
-        logEvent("DEP","DISJAM",pin)
+	# If there is something triggering the dispense sensor 
+	# when a deposit is sensed, log it and don't turn on the motor
+	if GPIO.input(DIS) == 0:
+        	logEvent("DEP",1,pin)
+        	motorOn(pin)
+	else:
+		logEvent("DEP","DISJAM",pin)
 
 # When a dispense event is detected, turns off the dispense motor	
 def DISEvent(pin=None):
