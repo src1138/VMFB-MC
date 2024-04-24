@@ -263,38 +263,34 @@ def PBKAOff(pin="TO"):
 
 # Disable camera to save power
 def disableCamera(pin=None):
-    # disable camera in motion.conf
-    reading_file = open("motion.conf", "r")
     new_file_content = ""
-    for line in reading_file:
-        stripped_line = line.strip()
-        new_line = stripped_line.replace("camera camera-1.conf", "")
-        new_file_content += new_line +"\n"
-    reading_file.close()
-    writing_file = open("motion.conf", "w")
-    for line in new_file_content:
-        writing_file.write(line)
-    writing_file.close()
+    # disable camera in motion.conf
+    with open("motion.conf", "r") as reading_file:
+        for line in reading_file:
+            stripped_line = line.strip()
+            new_line = stripped_line.replace("camera camera-1.conf", "")
+            new_file_content += new_line +"\n"
+    with open("motion.conf", "w") as writing_file
+        for line in new_file_content:
+            writing_file.write(line)
     # restart the motioneye server
     os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
     os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
     logEvent("CAM","DISABLE",pin)
 
 def enableCamera(pin=None):
-    # enable camera in motion.conf
-    reading_file = open("motion.conf", "r")
     new_file_content = ""
-    for line in reading_file:
-        stripped_line = line.strip()
-        new_line = stripped_line.replace("camera camera-1.conf", "")
-        if new_line != "":
-            new_file_content += new_line +"\n"
-    new_file_content += "camera camera-1.conf\n"
-    reading_file.close()
-    writing_file = open("motion.conf", "w")
-    for line in new_file_content:
-        writing_file.write(line)
-    writing_file.close()
+    # enable camera in motion.conf
+    with open("motion.conf", "r") as reading_file
+        for line in reading_file:
+            stripped_line = line.strip()
+            new_line = stripped_line.replace("camera camera-1.conf", "")
+            if new_line != "":
+                new_file_content += new_line +"\n"
+        new_file_content += "camera camera-1.conf\n"
+    with open("motion.conf", "w") as writing_file
+        for line in new_file_content:
+            writing_file.write(line)
     # restart the motioneye server
     os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
     os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
