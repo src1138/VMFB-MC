@@ -270,7 +270,7 @@ def disableCamera(pin=None):
             stripped_line = line.strip()
             new_line = stripped_line.replace("camera camera-1.conf", "")
             new_file_content += new_line +"\n"
-    with open("motion.conf", "w") as writing_file
+    with open("motion.conf", "w") as writing_file:
         for line in new_file_content:
             writing_file.write(line)
     # restart the motioneye server
@@ -281,14 +281,14 @@ def disableCamera(pin=None):
 def enableCamera(pin=None):
     new_file_content = ""
     # enable camera in motion.conf
-    with open("motion.conf", "r") as reading_file
+    with open("motion.conf", "r") as reading_file:
         for line in reading_file:
             stripped_line = line.strip()
             new_line = stripped_line.replace("camera camera-1.conf", "")
             if new_line != "":
                 new_file_content += new_line +"\n"
         new_file_content += "camera camera-1.conf\n"
-    with open("motion.conf", "w") as writing_file
+    with open("motion.conf", "w") as writing_file:
         for line in new_file_content:
             writing_file.write(line)
     # restart the motioneye server
