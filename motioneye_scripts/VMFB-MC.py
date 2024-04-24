@@ -4,15 +4,17 @@ import RPi.GPIO as GPIO		# for GPIO access
 from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
-# import urllib2			# to handle http requests to enable and disable motioneye motion detection
+# import urllib2		# to handle http requests to enable and disable motioneye motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
 motorTimeout=10			# soconds dispenser motor stays on before it times out
 timedDispensePeriod=3600	# seconds between timed dispense when it is enabled
-timedDispenseStartTime=500	# time of day timed dispense will start when enabled (HHMM format, don't use leading zeros)
-timedDispenseEndTime=1600	# time of day timed dispense will stop when enabled (HHMM format, don't use leading zeros)
+timedDispenseStartTime=500	# time of day timed dispense will start when enabled
+				# (HHMM format, don't use leading zeros)
+timedDispenseEndTime=1600	# time of day timed dispense will stop when enabled
+				# (HHMM format, don't use leading zeros)
 pbkaOnPeriod=1			# seconds the PBKA will turn the sensors on to sink current to keep a powerbank on
 pbkaOffPeriod=10		# seconds between PBKA current sinks
 defaultEnableTimer=1   		# set to 1 to enable timer on startup
@@ -25,7 +27,7 @@ GPIO.setmode(GPIO.BCM)		# uses gpio numbers to reference pins
 # Disable warnings
 GPIO.setwarnings(False)		# disables GPIO warnings (ex. pin already in use)
 
-# Set GPIO pin numbers 
+# Set GPIO pin numbers
 PIR=27 		#PIN 13 - input to sense PIR signal (high signal means PIR was triggered)
 MT=23 		#PIN 16	- input to sense hopper (almost) empty signal (high initiates a dispense event)
 MAN=26 		#PIN 37 - input to sense manual dispense event (high=ok, low= (almost) empty
@@ -45,7 +47,7 @@ GPIO.setup([DEP,DIS], GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Configure GPIO outputs and set them to low initially
 GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 
-# Logs events as <timestamp>\t<eventType>\t<event>, casts areguments as strings 
+# Logs events as <timestamp>\t<eventType>\t<event>, casts areguments as strings
 def logEvent(eventType=None,event=None,pin=None):
     with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
         file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
@@ -60,7 +62,7 @@ def PIREvent(pin=None):
         logEvent("PIR",0,pin)
 
 # When sesors are on, checks the empty sensor and updates the MT_SIG pin state
-# Takes this approach because when the sensor LEDs are off the signal is always low 	
+# Takes this approach because when the sensor LEDs are off the signal is always low
 def updateMT(pin=None):
     event=0
     if GPIO.input(MT) == 1:
@@ -70,8 +72,8 @@ def updateMT(pin=None):
         GPIO.output(MT_SIG,0)
     logEvent("MT",event,pin)
 
-# Suspends PBKA if it is enabled, turns on sensor LEDs, 
-# updates empty sensor status, and (re)starts sensor timeout timer	
+# Suspends PBKA if it is enabled, turns on sensor LEDs,
+# updates empty sensor status, and (re)starts sensor timeout timer
 def sensorsOn(pin=None):
     logEvent("SIR","ON",pin)
     if GPIO.input(PBKA) == 1:
@@ -87,17 +89,17 @@ def sensorsOn(pin=None):
     # raises an exception and halts execution of the thread
     GPIO.remove_event_detect(DEP)
     GPIO.remove_event_detect(DIS)
-    # Interrupt for Deposit and Dispense when signal goes low>high. 
+    # Interrupt for Deposit and Dispense when signal goes low>high.
     # It triggers as soon as an object is seen, and will not
     # trigger again until the pin goes low, then high again
     # adding a 1000ms debounce because LM393 comparators are jittery
     # for LM358 op-amps, a 100ms debounce should be sufficient
-    GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) 
+    GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000)
     GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
     updateMT(pin)
     # if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
     if pin == 27:
-        # enable the camera 
+        # enable the camera
         # enableCamera(pin)
         # enable motion detection
         # urllib2.urlopen("http://localhost:7999/1/detection/start").read()
@@ -124,7 +126,7 @@ def sensorsOff(pin="TO"):
         GPIO.remove_event_detect(DIS)
         # end any recording disable motion detection in motioneye and log the response
         # urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
-        os.system('curl http://localhost:7999/1/detection/pause') 
+        os.system('curl http://localhost:7999/1/detection/pause')
         logEvent("MOD","PAUSE",pin)
         # urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
         os.system('curl http://localhost:7999/1/action/eventend')
@@ -134,7 +136,7 @@ def sensorsOff(pin="TO"):
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
-    # If there is something triggering the dispense sensor 
+    # If there is something triggering the dispense sensor
     # when a deposit is sensed, log it and don't turn on the motor
     if GPIO.input(DIS) == 0:
         logEvent("DEP",1,pin)
@@ -142,11 +144,11 @@ def DEPEvent(pin=None):
     else:
         logEvent("DEP","DISJAM",pin)
 
-# When a dispense event is detected, turns off the dispense motor	
+# When a dispense event is detected, turns off the dispense motor
 def DISEvent(pin=None):
     logEvent("DIS",1,pin)
     motorOff(pin)
-	
+
 # Turns on the motor and (re)starts the motor timeout timer
 def motorOn(pin=None):
     logEvent("MTR","ON",pin)
@@ -172,13 +174,13 @@ def MANEvent(pin=None):
     motorOn(pin)
 
 # if current time is equal to or after the start time and equal to
-# or before the end time, turns on the sensor LEDs and starts the 
+# or before the end time, turns on the sensor LEDs and starts the
 # motor and (re)starts the timed dispense interval timer
 def timedDispense(pin="TO"):
     nowTime=int(datetime.now().strftime("%H%M"))
     # If you want to define multiple windows of timer operation
-    # of operation on certain days or dates you can do so in 
-    # the following if statement    
+    # of operation on certain days or dates you can do so in
+    # the following if statement
     if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
         logEvent("TMR","DISPENSE",pin)
         sensorsOn(pin)
@@ -235,8 +237,8 @@ def PBKAEnable(pin=None):
             PBKAOffTimer.cancel()
     logEvent("PBKA",event,pin)
         
-# Turns on sensor LEDs to sink current and keep powerbanks on, 
-# (re)starts timer to keep them on for number of seconds specified			
+# Turns on sensor LEDs to sink current and keep powerbanks on,
+# (re)starts timer to keep them on for number of seconds specified
 def PBKAOn(pin="TO"):
     logEvent("PBKA","SINK",pin)
     GPIO.output(SIR,1)
@@ -275,7 +277,7 @@ def disableCamera(pin=None):
     os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
     logEvent("CAM","DISABLE",pin)
 
-def enableCamera(pin=None): 
+def enableCamera(pin=None):
     # enable camera in motion.conf
     reading_file = open("motion.conf", "r")
     new_file_content = ""
@@ -309,7 +311,7 @@ GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent, 100)	# Interrupt for PIR when si
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense when signal goes low>high
 GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable when pin changes state
 GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable when pin changes state
-	
+
 # Set up timers
 # Timer for sensors, calls sensorsOff when sensorTimeout seconds have passed
 sensorTimer = threading.Timer(sensorTimeout, sensorsOff)
@@ -328,6 +330,6 @@ if defaultEnableTimer == 1:
 if defaultEnablePBKA == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
 
-# Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function 
+# Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function
 while True:
-    time.sleep(1e6) 
+    time.sleep(1e6)
