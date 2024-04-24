@@ -47,253 +47,253 @@ GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 
 # Logs events as <timestamp>\t<eventType>\t<event>, casts areguments as strings 
 def logEvent(eventType=None,event=None,pin=None):
-	with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-		file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
+    with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
+        file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
 
 # When PIR signal goes high, enables sensors
 # When PIR goes low, it just logs the event	
 def PIREvent(pin=None):
-	if GPIO.input(PIR) == 1:
-		logEvent("PIR",1,pin)
-		sensorsOn(pin)
-	else:
-		logEvent("PIR",0,pin)
+    if GPIO.input(PIR) == 1:
+        logEvent("PIR",1,pin)
+        sensorsOn(pin)
+    else:
+        logEvent("PIR",0,pin)
 
 # When sesors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low 	
 def updateMT(pin=None):
-	event=0
-	if GPIO.input(MT) == 1:
-		GPIO.output(MT_SIG,1)
-		event=1
-	else:
-		GPIO.output(MT_SIG,0)
-	logEvent("MT",event,pin)
+    event=0
+    if GPIO.input(MT) == 1:
+        GPIO.output(MT_SIG,1)
+        event=1
+    else:
+        GPIO.output(MT_SIG,0)
+    logEvent("MT",event,pin)
 
 # Suspends PBKA if it is enabled, turns on sensor LEDs, 
 # updates empty sensor status, and (re)starts sensor timeout timer	
 def sensorsOn(pin=None):
-	logEvent("SIR","ON",pin)
-	if GPIO.input(PBKA) == 1:
-		PBKASuspend(pin)
-	GPIO.output(SIR,1)
-	global sensorTimer
-	if sensorTimer.is_alive() == True:
-		sensorTimer.cancel()
-	sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
-	sensorTimer.start()
-	# Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
-	# Removing events first since adding them when already added (manual dispense when sensors are already on)
-	# raises an exception and halts execution of the thread
-	GPIO.remove_event_detect(DEP)
-	GPIO.remove_event_detect(DIS)
-	# Interrupt for Deposit and Dispense when signal goes low>high. 
-	# It triggers as soon as an object is seen, and will not
-	# trigger again until the pin goes low, then high again
-	# adding a 1000ms debounce because LM393 comparators are jittery
-	# for LM358 op-amps, a 100ms debounce should be sufficient
-	GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) 
-	GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
-	updateMT(pin)
-	# if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
-	if pin == 27:
-		# enable the camera 
-		# enableCamera(pin)
-		# enable motion detection
-		# urllib2.urlopen("http://localhost:7999/1/detection/start").read()
-		os.system('curl http://localhost:7999/1/detection/start')
-		logEvent("MOD","START",pin)
+    logEvent("SIR","ON",pin)
+    if GPIO.input(PBKA) == 1:
+        PBKASuspend(pin)
+    GPIO.output(SIR,1)
+    global sensorTimer
+    if sensorTimer.is_alive() == True:
+        sensorTimer.cancel()
+    sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
+    sensorTimer.start()
+    # Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
+    # Removing events first since adding them when already added (manual dispense when sensors are already on)
+    # raises an exception and halts execution of the thread
+    GPIO.remove_event_detect(DEP)
+    GPIO.remove_event_detect(DIS)
+    # Interrupt for Deposit and Dispense when signal goes low>high. 
+    # It triggers as soon as an object is seen, and will not
+    # trigger again until the pin goes low, then high again
+    # adding a 1000ms debounce because LM393 comparators are jittery
+    # for LM358 op-amps, a 100ms debounce should be sufficient
+    GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000) 
+    GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
+    updateMT(pin)
+    # if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
+    if pin == 27:
+        # enable the camera 
+        # enableCamera(pin)
+        # enable motion detection
+        # urllib2.urlopen("http://localhost:7999/1/detection/start").read()
+        os.system('curl http://localhost:7999/1/detection/start')
+        logEvent("MOD","START",pin)
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
-	# Some PIR sensors stay on until they don't detect anything
-	# this will check again to make sure the PIR is not triggering before disabling the sensors
-	if GPIO.input(PIR) == 1:
-		sensorsOn(PIR)
-	else:
-		updateMT(pin)
-		logEvent("SIR","OFF",pin)
-		GPIO.output(SIR,0)
-		global sensorTimer
-		if sensorTimer.is_alive() == True:
-			sensorTimer.cancel()
-		if GPIO.input(PBKA) == 1:
-			PBKAEnable(pin)
-		# Remove event detect for DEP and DIS
-		GPIO.remove_event_detect(DEP)
-		GPIO.remove_event_detect(DIS)
-		# end any recording disable motion detection in motioneye and log the response
-		# urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
-		os.system('curl http://localhost:7999/1/detection/pause') 
-		logEvent("MOD","PAUSE",pin)
-		# urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
-		os.system('curl http://localhost:7999/1/action/eventend')
-		logEvent("REC","STOP",pin)
-		# disable the camera to save power while sensors are off
-		# disableCamera(pin)
+    # Some PIR sensors stay on until they don't detect anything
+    # this will check again to make sure the PIR is not triggering before disabling the sensors
+    if GPIO.input(PIR) == 1:
+        sensorsOn(PIR)
+    else:
+        updateMT(pin)
+        logEvent("SIR","OFF",pin)
+        GPIO.output(SIR,0)
+        global sensorTimer
+        if sensorTimer.is_alive() == True:
+            sensorTimer.cancel()
+        if GPIO.input(PBKA) == 1:
+            PBKAEnable(pin)
+        # Remove event detect for DEP and DIS
+        GPIO.remove_event_detect(DEP)
+        GPIO.remove_event_detect(DIS)
+        # end any recording disable motion detection in motioneye and log the response
+        # urllib2.urlopen("http://localhost:7999/1/detection/pause").read()
+        os.system('curl http://localhost:7999/1/detection/pause') 
+        logEvent("MOD","PAUSE",pin)
+        # urllib2.urlopen("http://localhost:7999/1/action/eventend").read()
+        os.system('curl http://localhost:7999/1/action/eventend')
+        logEvent("REC","STOP",pin)
+        # disable the camera to save power while sensors are off
+        # disableCamera(pin)
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
-	# If there is something triggering the dispense sensor 
-	# when a deposit is sensed, log it and don't turn on the motor
-	if GPIO.input(DIS) == 0:
-		logEvent("DEP",1,pin)
-		motorOn(pin)
-	else:
-		logEvent("DEP","DISJAM",pin)
+    # If there is something triggering the dispense sensor 
+    # when a deposit is sensed, log it and don't turn on the motor
+    if GPIO.input(DIS) == 0:
+        logEvent("DEP",1,pin)
+        motorOn(pin)
+    else:
+        logEvent("DEP","DISJAM",pin)
 
 # When a dispense event is detected, turns off the dispense motor	
 def DISEvent(pin=None):
-	logEvent("DIS",1,pin)
-	motorOff(pin)
+    logEvent("DIS",1,pin)
+    motorOff(pin)
 	
 # Turns on the motor and (re)starts the motor timeout timer
 def motorOn(pin=None):
-	logEvent("MTR","ON",pin)
-	GPIO.output(MTR,1)
-	global motorTimer
-	if motorTimer.is_alive() == True:
-		motorTimer.cancel()
-	motorTimer = threading.Timer(motorTimeout,motorOff)
-	motorTimer.start()
+    logEvent("MTR","ON",pin)
+    GPIO.output(MTR,1)
+    global motorTimer
+    if motorTimer.is_alive() == True:
+        motorTimer.cancel()
+    motorTimer = threading.Timer(motorTimeout,motorOff)
+    motorTimer.start()
 
 # Turns off the motor and stops the motor timeout timer
 def motorOff(pin="TO"):
-	logEvent("MTR","OFF",pin)
-	GPIO.output(MTR,0)
-	global motorTimer
-	if motorTimer.is_alive() == True:
-		motorTimer.cancel()
+    logEvent("MTR","OFF",pin)
+    GPIO.output(MTR,0)
+    global motorTimer
+    if motorTimer.is_alive() == True:
+        motorTimer.cancel()
 
 # When a manual dispense event is detected, turns on the sensors and starts the dispense motor
 def MANEvent(pin=None):
-	logEvent("MAN","DISPENSE",pin)
-	sensorsOn(pin)
-	motorOn(pin)
+    logEvent("MAN","DISPENSE",pin)
+    sensorsOn(pin)
+    motorOn(pin)
 
 # if current time is equal to or after the start time and equal to
 # or before the end time, turns on the sensor LEDs and starts the 
 # motor and (re)starts the timed dispense interval timer
 def timedDispense(pin="TO"):
-	nowTime=int(datetime.now().strftime("%H%M"))
-	# If you want to define multiple windows of timer operation
-	# of operation on certain days or dates you can do so in 
-	# the following if statement    
-	if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
-		logEvent("TMR","DISPENSE",pin)
-		sensorsOn(pin)
-		motorOn(pin)
-	else:
-		logEvent("TMR","SUSPENDED",pin)
-	global timedDispenseTimer
-	if timedDispenseTimer.is_alive() == True:
-		timedDispenseTimer.cancel()
-	timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
-	timedDispenseTimer.start()
+    nowTime=int(datetime.now().strftime("%H%M"))
+    # If you want to define multiple windows of timer operation
+    # of operation on certain days or dates you can do so in 
+    # the following if statement    
+    if (nowTime >= timedDispenseStartTime) & (nowTime <= timedDispenseEndTime):
+        logEvent("TMR","DISPENSE",pin)
+        sensorsOn(pin)
+        motorOn(pin)
+    else:
+        logEvent("TMR","SUSPENDED",pin)
+    global timedDispenseTimer
+    if timedDispenseTimer.is_alive() == True:
+        timedDispenseTimer.cancel()
+    timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
+    timedDispenseTimer.start()
 
 # When the TMR pin changes state, (re)starts the timed dispense
 # timer if it is high, stops it when it is low
 def TMREnable(pin=None):
-	event="DISABLED"
-	global timedDispenseTimer
-	if GPIO.input(TMR) == 1:
-		event="ENABLED"
-		if timedDispenseTimer.is_alive() == True:
-			timedDispenseTimer.cancel()
-		timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
-		timedDispenseTimer.start()
-	else:
-		if timedDispenseTimer.is_alive() == True:
-			timedDispenseTimer.cancel()
-	logEvent("TMR",event,pin)
+    event="DISABLED"
+    global timedDispenseTimer
+    if GPIO.input(TMR) == 1:
+        event="ENABLED"
+        if timedDispenseTimer.is_alive() == True:
+            timedDispenseTimer.cancel()
+        timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
+        timedDispenseTimer.start()
+    else:
+        if timedDispenseTimer.is_alive() == True:
+            timedDispenseTimer.cancel()
+    logEvent("TMR",event,pin)
 
 # Suspends the PBKA current sinking, stops PBKA timers
 def PBKASuspend(pin=None):
-	if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
-		if PBKAOnTimer.is_alive() == True:
-			PBKAOnTimer.cancel()
-		if PBKAOffTimer.is_alive() == True:
-			PBKAOffTimer.cancel()
-		logEvent("PBKA","SUSPEND",pin)
+    if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
+        if PBKAOnTimer.is_alive() == True:
+            PBKAOnTimer.cancel()
+        if PBKAOffTimer.is_alive() == True:
+            PBKAOffTimer.cancel()
+        logEvent("PBKA","SUSPEND",pin)
 
 # Then the PBKA pin changes state or sensors turn off when the PBKA is enabled,
 # (re)starts the PBKA Off timer to start the current sink cycle
 # When PBKA is disabled, it stops the PBKA timers
 def PBKAEnable(pin=None):
-	event="DISABLED"
-	global PBKAOffTimer
-	if GPIO.input(PBKA) == 1:
-		event="ENABLED"
-		if PBKAOffTimer.is_alive() == True:
-			PBKAOffTimer.cancel()
-		PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
-		PBKAOffTimer.start()
-	else:
-		if PBKAOnTimer.is_alive() == True:
-			PBKAOnTimer.cancel()
-		if PBKAOffTimer.is_alive() == True:
-			PBKAOffTimer.cancel()
-	logEvent("PBKA",event,pin)
+    event="DISABLED"
+    global PBKAOffTimer
+    if GPIO.input(PBKA) == 1:
+        event="ENABLED"
+        if PBKAOffTimer.is_alive() == True:
+            PBKAOffTimer.cancel()
+        PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
+        PBKAOffTimer.start()
+    else:
+        if PBKAOnTimer.is_alive() == True:
+            PBKAOnTimer.cancel()
+        if PBKAOffTimer.is_alive() == True:
+            PBKAOffTimer.cancel()
+    logEvent("PBKA",event,pin)
         
 # Turns on sensor LEDs to sink current and keep powerbanks on, 
 # (re)starts timer to keep them on for number of seconds specified			
 def PBKAOn(pin="TO"):
-	logEvent("PBKA","SINK",pin)
-	GPIO.output(SIR,1)
-	global PBKAOnTimer
-	if PBKAOnTimer.is_alive() == True:
-		PBKAOnTimer.cancel()
-	PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
-	PBKAOnTimer.start()
+    logEvent("PBKA","SINK",pin)
+    GPIO.output(SIR,1)
+    global PBKAOnTimer
+    if PBKAOnTimer.is_alive() == True:
+        PBKAOnTimer.cancel()
+    PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
+    PBKAOnTimer.start()
 
 # Turns off sensor LEDs, (re)starts timer to turn them back on
 def PBKAOff(pin="TO"):
-	logEvent("PBKA","IDLE",pin)
-	GPIO.output(SIR,0)
-	global PBKAOffTimer
-	if PBKAOffTimer.is_alive() == True:
-		PBKAOffTimer.cancel()
-	PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
-	PBKAOffTimer.start()
+    logEvent("PBKA","IDLE",pin)
+    GPIO.output(SIR,0)
+    global PBKAOffTimer
+    if PBKAOffTimer.is_alive() == True:
+        PBKAOffTimer.cancel()
+    PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
+    PBKAOffTimer.start()
 
 # Disable camera to save power
 def disableCamera(pin=None):
-	# disable camera in motion.conf
-	reading_file = open("motion.conf", "r")
-	new_file_content = ""
-	for line in reading_file:
-		stripped_line = line.strip()
-		new_line = stripped_line.replace("camera camera-1.conf", "")
-		new_file_content += new_line +"\n"
-	reading_file.close()
-	writing_file = open("motion.conf", "w")
-	for line in new_file_content:
-		writing_file.write(line)
-	writing_file.close()
-	# restart the motioneye server
-	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
-	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
-	logEvent("CAM","DISABLE",pin)
+    # disable camera in motion.conf
+    reading_file = open("motion.conf", "r")
+    new_file_content = ""
+    for line in reading_file:
+        stripped_line = line.strip()
+        new_line = stripped_line.replace("camera camera-1.conf", "")
+        new_file_content += new_line +"\n"
+    reading_file.close()
+    writing_file = open("motion.conf", "w")
+    for line in new_file_content:
+        writing_file.write(line)
+    writing_file.close()
+    # restart the motioneye server
+    os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
+    os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
+    logEvent("CAM","DISABLE",pin)
 
 def enableCamera(pin=None): 
-	# enable camera in motion.conf
-	reading_file = open("motion.conf", "r")
-	new_file_content = ""
-	for line in reading_file:
-		stripped_line = line.strip()
-		new_line = stripped_line.replace("camera camera-1.conf", "")
-		if new_line != "":
-			new_file_content += new_line +"\n"
-	new_file_content += "camera camera-1.conf\n"
-	reading_file.close()
-	writing_file = open("motion.conf", "w")
-	for line in new_file_content:
-		writing_file.write(line)
-	writing_file.close()
-	# restart the motioneye server
-	os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
-	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
-	logEvent("CAM","ENABLE",pin)
+    # enable camera in motion.conf
+    reading_file = open("motion.conf", "r")
+    new_file_content = ""
+    for line in reading_file:
+        stripped_line = line.strip()
+        new_line = stripped_line.replace("camera camera-1.conf", "")
+        if new_line != "":
+            new_file_content += new_line +"\n"
+    new_file_content += "camera camera-1.conf\n"
+    reading_file.close()
+    writing_file = open("motion.conf", "w")
+    for line in new_file_content:
+        writing_file.write(line)
+    writing_file.close()
+    # restart the motioneye server
+    os.system('meyectl stopserver -b -c /data/etc/motioneye.conf')
+    os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
+    logEvent("CAM","ENABLE",pin)
 
 # Log start of script
 logEvent("SCRIPT","START","INIT")
@@ -324,10 +324,10 @@ PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
 # Initialize timed dispense and PBKA enable/disable - do this after defining interrupts and timers
 if defaultEnableTimer == 1:
-	os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
+    os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
 if defaultEnablePBKA == 1:
-	os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
+    os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
 
 # Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function 
 while True:
-	time.sleep(1e6) 
+    time.sleep(1e6) 
