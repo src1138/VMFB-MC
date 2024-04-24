@@ -86,7 +86,7 @@ def sensorsOn(pin=None):
     sensorTimer.start()
     # Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime
     # around 1000ms
-    # Removing events first since adding them when already added (manual dispense when sensors 
+    # Removing events first since adding them when already added (manual dispense when sensors
     # are already on) raises an exception and halts execution of the thread
     GPIO.remove_event_detect(DEP)
     GPIO.remove_event_detect(DIS)
@@ -98,7 +98,7 @@ def sensorsOn(pin=None):
     GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000)
     GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000)
     updateMT(pin)
-    # if the trigger came from the PIR, enable camera, enable motion detection in motioneye 
+    # if the trigger came from the PIR, enable camera, enable motion detection in motioneye
     # and log the event
     if pin == 27:
         # enable the camera
@@ -108,7 +108,8 @@ def sensorsOn(pin=None):
         os.system('curl http://localhost:7999/1/detection/start')
         logEvent("MOD","START",pin)
 
-# Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer, re-enables PbKA if it is enabled
+# Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer,
+# re-enables PbKA if it is enabled
 def sensorsOff(pin="TO"):
     # Some PIR sensors stay on until they don't detect anything
     # this will check again to make sure the PIR is not triggering before disabling the sensors
@@ -309,10 +310,10 @@ GPIO.output(SIR,0)
 
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts
 # Moved adding DEP and DIS interrupts to sensorsOn and remove them in sensorsOff
-GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent, 100)	# Interrupt for PIR when signal goes low>high
-GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense when signal goes low>high
-GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable when pin changes state
-GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable when pin changes state
+GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent, 100)	# Interrupt for PIR
+GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense
+GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable
+GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable
 
 # Set up timers
 # Timer for sensors, calls sensorsOff when sensorTimeout seconds have passed
