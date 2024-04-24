@@ -1,11 +1,11 @@
 #!/usr/bin/python
 
-import RPi.GPIO as GPIO		# for GPIO access
 from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
-# import urllib2		# to handle http requests to enable and disable motioneye motion detection
+# import urllib2		# to handle http requests to enable/disable motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
+import RPi.GPIO as GPIO		# for GPIO access
 
 # Configuration variables
 sensorTimeout=30		# seconds the sensors stay on after last PIR trigger
@@ -15,7 +15,7 @@ timedDispenseStartTime=500	# time of day timed dispense will start when enabled
 				# (HHMM format, don't use leading zeros)
 timedDispenseEndTime=1600	# time of day timed dispense will stop when enabled
 				# (HHMM format, don't use leading zeros)
-pbkaOnPeriod=1			# seconds the PBKA will turn the sensors on to sink current to keep a powerbank on
+pbkaOnPeriod=1			# seconds the PBKA will sink current to keep a powerbank on
 pbkaOffPeriod=10		# seconds between PBKA current sinks
 defaultEnableTimer=1   		# set to 1 to enable timer on startup
 defaultEnablePBKA=0      	# set to 1 to enable PBKA on startup
@@ -29,7 +29,7 @@ GPIO.setwarnings(False)		# disables GPIO warnings (ex. pin already in use)
 
 # Set GPIO pin numbers
 PIR=27 		#PIN 13 - input to sense PIR signal (high signal means PIR was triggered)
-MT=23 		#PIN 16	- input to sense hopper (almost) empty signal (high initiates a dispense event)
+MT=23 		#PIN 16	- input to sense hopper empty signal (high initiates a dispense event)
 MAN=26 		#PIN 37 - input to sense manual dispense event (high=ok, low= (almost) empty
 PBKA=19 	#PIN 35 - input to sense if PBKA is enabled (high=enabled, low=disabled)
 TMR=13 		#PIN 33 - input to sense if timer is enabled (high=enabled, low=disabled)
@@ -53,7 +53,7 @@ def logEvent(eventType=None,event=None,pin=None):
         file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
 
 # When PIR signal goes high, enables sensors
-# When PIR goes low, it just logs the event	
+# When PIR goes low, it just logs the event
 def PIREvent(pin=None):
     if GPIO.input(PIR) == 1:
         logEvent("PIR",1,pin)
@@ -84,9 +84,10 @@ def sensorsOn(pin=None):
         sensorTimer.cancel()
     sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
     sensorTimer.start()
-    # Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime around 1000ms
-    # Removing events first since adding them when already added (manual dispense when sensors are already on)
-    # raises an exception and halts execution of the thread
+    # Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime
+    # around 1000ms
+    # Removing events first since adding them when already added (manual dispense when sensors 
+    # are already on) raises an exception and halts execution of the thread
     GPIO.remove_event_detect(DEP)
     GPIO.remove_event_detect(DIS)
     # Interrupt for Deposit and Dispense when signal goes low>high.
@@ -95,9 +96,10 @@ def sensorsOn(pin=None):
     # adding a 1000ms debounce because LM393 comparators are jittery
     # for LM358 op-amps, a 100ms debounce should be sufficient
     GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000)
-    GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000) 
+    GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000)
     updateMT(pin)
-    # if the trigger came from the PIR, enable camera, enable motion detection in motioneye and log the event
+    # if the trigger came from the PIR, enable camera, enable motion detection in motioneye 
+    # and log the event
     if pin == 27:
         # enable the camera
         # enableCamera(pin)
@@ -236,7 +238,7 @@ def PBKAEnable(pin=None):
         if PBKAOffTimer.is_alive() == True:
             PBKAOffTimer.cancel()
     logEvent("PBKA",event,pin)
-        
+
 # Turns on sensor LEDs to sink current and keep powerbanks on,
 # (re)starts timer to keep them on for number of seconds specified
 def PBKAOn(pin="TO"):
