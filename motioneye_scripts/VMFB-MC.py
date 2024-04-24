@@ -303,9 +303,7 @@ GPIO.output(SIR,1)
 updateMT("INIT")
 GPIO.output(SIR,0)
 
-# Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, 
-# except DEP and DIS which get 1000ms - needed when using a comparator like
-# LM393 to avoid multiple triggers that pollute the log and counts
+# Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts
 # Moved adding DEP and DIS interrupts to sensorsOn and remove them in sensorsOff
 GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent, 100)	# Interrupt for PIR when signal goes low>high
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense when signal goes low>high
