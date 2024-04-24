@@ -53,8 +53,11 @@ def logEvent(eventType=None,event=None,pin=None):
 # When PIR signal goes high, enables sensors
 # When PIR goes low, it just logs the event	
 def PIREvent(pin=None):
-	logEvent("PIR",1,pin)
-	sensorsOn(pin)
+	if GPIO.input(PIR) == 1:
+		logEvent("PIR",1,pin)
+		sensorsOn(pin)
+	else:
+		logEvent("PIR",0,pin)
 
 # When sesors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low 	
@@ -292,11 +295,19 @@ def enableCamera(pin=None):
 	os.system('meyectl startserver -b -c /data/etc/motioneye.conf')
 	logEvent("CAM","ENABLE",pin)
 
+# Log start of script
+logEvent("SCRIPT","START","INIT")
+
+# Initialize MT Sensor state - enable the sensor LEDs, check the sensor, and disable the sensor LEDs
+GPIO.output(SIR,1)
+updateMT("INIT")
+GPIO.output(SIR,0)
+
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts, 
 # except DEP and DIS which get 1000ms - needed when using a comparator like
 # LM393 to avoid multiple triggers that pollute the log and counts
 # Moved adding DEP and DIS interrupts to sensorsOn and remove them in sensorsOff
-GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Interrupt for PIR when signal goes low>high
+GPIO.add_event_detect(PIR, GPIO.BOTH, PIREvent, 100)	# Interrupt for PIR when signal goes low>high
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense when signal goes low>high
 GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable when pin changes state
 GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable when pin changes state
@@ -313,18 +324,11 @@ PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
 # Timer for PBKA interval between current sinks, waits pbkaOffPeriod seconds between sinks
 PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
 
-# Log start of script
-logEvent("SCRIPT","START","INIT")
-
-# Initialize timed dispense and PBKA enable/disable
+# Initialize timed dispense and PBKA enable/disable - do this after defining interrupts and timers
 if defaultEnableTimer == 1:
 	os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
 if defaultEnablePBKA == 1:
 	os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
-
-# Initialize MT Sensor by briefly enabling the sensors
-sensorsOn("INIT")
-sensorsOff("INIT")
 
 # Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function 
 while True:
