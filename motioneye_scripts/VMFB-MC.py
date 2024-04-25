@@ -100,7 +100,7 @@ def sensorsOn(pin=None):
     updateMT(pin)
     # if the trigger came from the PIR, enable camera, enable motion detection in motioneye
     # and log the event
-    if pin == 27:
+    if pin == PIR:
         # enable the camera
         # enableCamera(pin)
         # enable motion detection
@@ -139,12 +139,12 @@ def sensorsOff(pin="TO"):
 
 # When a deposit event is detected, turn on the dispense motor
 def DEPEvent(pin=None):
-    # If there is something triggering the dispense sensor
-    # when a deposit is sensed, log it and don't turn on the motor
     if GPIO.input(DIS) == 0:
         logEvent("DEP",1,pin)
         motorOn(pin)
     else:
+        # If there is something triggering the dispense sensor
+        # when a deposit is sensed, log it and don't turn on the motor
         logEvent("DEP","DISJAM",pin)
 
 # When a dispense event is detected, turns off the dispense motor
