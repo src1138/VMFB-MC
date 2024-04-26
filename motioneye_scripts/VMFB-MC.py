@@ -79,7 +79,7 @@ def sensorsOn(pin=None):
     if GPIO.input(PBKA) == 1:
         PBKASuspend(pin)
     GPIO.output(SIR,1)
-    global sensorTimer
+#    global sensorTimer
     if sensorTimer.is_alive():
         sensorTimer.cancel()
     sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
@@ -119,7 +119,7 @@ def sensorsOff(pin="TO"):
         updateMT(pin)
         logEvent("SIR","OFF",pin)
         GPIO.output(SIR,0)
-        global sensorTimer
+#        global sensorTimer
         if sensorTimer.is_alive():
             sensorTimer.cancel()
         if GPIO.input(PBKA) == 1:
@@ -156,7 +156,7 @@ def DISEvent(pin=None):
 def motorOn(pin=None):
     logEvent("MTR","ON",pin)
     GPIO.output(MTR,1)
-    global motorTimer
+#    global motorTimer
     if motorTimer.is_alive():
         motorTimer.cancel()
     motorTimer = threading.Timer(motorTimeout,motorOff)
@@ -166,7 +166,7 @@ def motorOn(pin=None):
 def motorOff(pin="TO"):
     logEvent("MTR","OFF",pin)
     GPIO.output(MTR,0)
-    global motorTimer
+#    global motorTimer
     if motorTimer.is_alive():
         motorTimer.cancel()
 
@@ -190,7 +190,7 @@ def timedDispense(pin="TO"):
         motorOn(pin)
     else:
         logEvent("TMR","SUSPENDED",pin)
-    global timedDispenseTimer
+#    global timedDispenseTimer
     if timedDispenseTimer.is_alive():
         timedDispenseTimer.cancel()
     timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
@@ -200,7 +200,7 @@ def timedDispense(pin="TO"):
 # timer if it is high, stops it when it is low
 def TMREnable(pin=None):
     event="DISABLED"
-    global timedDispenseTimer
+#    global timedDispenseTimer
     if GPIO.input(TMR) == 1:
         event="ENABLED"
         if timedDispenseTimer.is_alive():
@@ -226,7 +226,7 @@ def PBKASuspend(pin=None):
 # When PBKA is disabled, it stops the PBKA timers
 def PBKAEnable(pin=None):
     event="DISABLED"
-    global PBKAOffTimer
+#    global PBKAOffTimer
     if GPIO.input(PBKA) == 1:
         event="ENABLED"
         if PBKAOffTimer.is_alive():
@@ -245,7 +245,7 @@ def PBKAEnable(pin=None):
 def PBKAOn(pin="TO"):
     logEvent("PBKA","SINK",pin)
     GPIO.output(SIR,1)
-    global PBKAOnTimer
+#    global PBKAOnTimer
     if PBKAOnTimer.is_alive():
         PBKAOnTimer.cancel()
     PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
@@ -255,7 +255,7 @@ def PBKAOn(pin="TO"):
 def PBKAOff(pin="TO"):
     logEvent("PBKA","IDLE",pin)
     GPIO.output(SIR,0)
-    global PBKAOffTimer
+#    global PBKAOffTimer
     if PBKAOffTimer.is_alive():
         PBKAOffTimer.cancel()
     PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
