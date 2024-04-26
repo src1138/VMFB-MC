@@ -28,11 +28,11 @@ GPIO.setmode(GPIO.BCM)		# uses gpio numbers to reference pins
 GPIO.setwarnings(False)		# disables GPIO warnings (ex. pin already in use)
 
 # Set GPIO pin numbers
-PIR=27 		#PIN 13 - input to sense PIR signal (high signal means PIR was triggered)
-MT=23 		#PIN 16	- input to sense hopper empty signal (high initiates a dispense event)
-MAN=26 		#PIN 37 - input to sense manual dispense event (high=ok, low= (almost) empty
-PBKA=19 	#PIN 35 - input to sense if PBKA is enabled (high=enabled, low=disabled)
-TMR=13 		#PIN 33 - input to sense if timer is enabled (high=enabled, low=disabled)
+PIR=27 		#PIN 13 - input to sense PIR signal 
+MT=23 		#PIN 16	- input to sense hopper empty signal 
+MAN=26 		#PIN 37 - input to sense manual dispense event 
+PBKA=19 	#PIN 35 - input to sense if PBKA is enabled
+TMR=13 		#PIN 33 - input to sense if timer is enabled 
 DIS=10 		#PIN 19 - input to sense a deposit event
 DEP=24 		#PIN 18 - input to sense a dispense event
 SIR=25 		#PIN 22 - output to turn on IR sensor LEDs
