@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Assign pins
+CAL=0 #Need to determine tin for this
+
+#Toggle the PBKA enable pin
+CAL_enable=$(cat /sys/class/gpio/gpio$PBKA/value)
+if [ $CAL_enable == "1" ] 
+then
+	# disable calibration mode
+	echo "0" >| /sys/class/gpio/gpio$PBKA/value
+else
+	# enable calibration mode
+	echo "1" >| /sys/class/gpio/gpio$PBKA/value
+fi

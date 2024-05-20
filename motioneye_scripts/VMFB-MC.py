@@ -33,6 +33,7 @@ MT=23 		#PIN 16	- input to sense hopper empty signal
 MAN=26 		#PIN 37 - input to sense manual dispense event 
 PBKA=19 	#PIN 35 - input to sense if PBKA is enabled
 TMR=13 		#PIN 33 - input to sense if timer is enabled 
+CAL=1       #PIN XX - input to sense if calibration mode is enabled
 DIS=10 		#PIN 19 - input to sense a deposit event
 DEP=24 		#PIN 18 - input to sense a dispense event
 SIR=25 		#PIN 22 - output to turn on IR sensor LEDs
@@ -40,6 +41,7 @@ MTR=11 		#PIN 23 - output to turn on dispense motor
 MT_SIG=5	#PIN 29 - output to indicate if hopper is (almost) empty
 TMR_SIG=16  	#PIN 36 - output to indicate if timed dispense is enabled
 PBKA_SIG=20 	#PIN 38 - output to indicate if PBKA is enabled
+CAL_SIG=2       #PIN XX - output to indicate if calibration mode is enabled
 
 # Configure GPIO inputs with pull-downs
 GPIO.setup([PIR,MT,MAN,PBKA,TMR], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -98,8 +100,8 @@ def sensorsOn(pin=None):
     # trigger again until the pin goes low, then high again
     # adding a 1000ms debounce because LM393 comparators are jittery
     # for LM358 op-amps, a 100ms debounce should be sufficient
-    GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 1000)
-    GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 1000)
+    GPIO.add_event_detect(DEP, GPIO.RISING, DEPEvent, 100)
+    GPIO.add_event_detect(DIS, GPIO.RISING, DISEvent, 100)
     updateMT(pin)
     # if the trigger came from the PIR, enable camera, enable motion detection in motioneye
     # and log the event
@@ -216,6 +218,14 @@ def timedDispense(pin="TO"):
     timedDispenseTimer.start()
     #print("End timedDispense()")
 
+def TMRSuspend(pin=None):
+    #print("Start TMRSuspend()")
+    global timedDispenseTimer
+    if timedDispenseTimer.is_alive() is True:
+        timedDispenseTimer.cancel()
+    logEvent("TMR","SUSPEND",pin)
+    #print("End TMRSuspend()")
+
 # When the TMR pin changes state, (re)starts the timed dispense
 # timer if it is high, stops it when it is low
 def TMREnable(pin=None):
@@ -242,10 +252,10 @@ def PBKASuspend(pin=None):
             PBKAOnTimer.cancel()
         if PBKAOffTimer.is_alive() is True:
             PBKAOffTimer.cancel()
-        logEvent("PBKA","SUSPEND",pin)
+    logEvent("PBKA","SUSPEND",pin)
     #print("End PBKASuspend()")
 
-# Then the PBKA pin changes state or sensors turn off when the PBKA is enabled,
+# When the PBKA pin changes state or sensors turn off when the PBKA is enabled,
 # (re)starts the PBKA Off timer to start the current sink cycle
 # When PBKA is disabled, it stops the PBKA timers
 def PBKAEnable(pin=None):
@@ -330,6 +340,39 @@ def enableCamera(pin=None):
     logEvent("CAM","ENABLE",pin)
     #print("End enableCamera()")
 
+# Enables interrupt to call sensorsOn() when the PIR triggers
+def PIREnable(pin=None):
+    #print("Start enablePIR()")
+    logEvent("PIR","ENABLE",pin)
+    GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR before adding to avoid exception
+	GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Add interrupt for PIR
+    #print("End enablePIR()")
+
+# Disables interrupt to call sensorsOn() when the PIR triggers
+def PIRDisable(pin=None):
+    #print("Start disablePIR()")
+    GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR
+    logEvent("PIR","DISABLE",pin)
+    #print("End disablePIR()")
+
+# When the CAL pin changes state
+def CALEnable(pin=None):
+    #print("Start CALenable()")
+    event="DISABLED"
+    if GPIO.input(CAL) == 1: # Calibration mode is enabled
+        event="ENABLED"
+        PIRDisable(pin) # Disable the PIR interrupt
+        TMRSuspend(pin) # Suspend timed dispense if it is enabled
+        PBKASuspend(pin) # Suspensd the PBKA if it is enabled
+        GPIO.output(SIR,1) # Turn on the sensor LEDs
+    else: # Calibration mode is disabled
+        GPIO.output(SIR,0) # Turn off the sensor LEDs
+        PIREnable(pin) # Enable the PIR interrupt
+        TMREnable(pin) # Turn on timed dispense if it is enabled
+        PBKAEnable(pin) # Turn on the PBKA if it is enabled
+    logEvent("CAL",event,pin)
+    #print("End CALenable()")
+
 # Log start of script
 logEvent("SCRIPT","START","INIT")
 
@@ -340,10 +383,11 @@ GPIO.output(SIR,0)
 
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts
 # Moved adding DEP and DIS interrupts to sensorsOn and remove them in sensorsOff
-GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Interrupt for PIR
+PIREnable("INIT")
 GPIO.add_event_detect(MAN, GPIO.RISING, MANEvent, 100)	# Interrupt for manual dispense
 GPIO.add_event_detect(TMR, GPIO.BOTH, TMREnable, 100)	# Interupt for timer enable
 GPIO.add_event_detect(PBKA, GPIO.BOTH, PBKAEnable, 100)	# Interrupt for PBKA enable
+GPIO.add_event_detect(CAL, GPIO.BOTH, CALEnable, 100)	# Interrupt for calibration mode enable
 
 # Set up timers
 # Timer for sensors, calls sensorsOff when sensorTimeout seconds have passed
