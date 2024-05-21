@@ -29,22 +29,23 @@ GPIO.setwarnings(False)		# disables GPIO warnings (ex. pin already in use)
 
 # Set GPIO pin numbers
 PIR=27 		#PIN 13 - input to sense PIR signal 
-MT=23 		#PIN 16	- input to sense hopper empty signal 
+MT=24 		#PIN 18	- input to sense hopper empty signal 
 MAN=26 		#PIN 37 - input to sense manual dispense event 
 PBKA=19 	#PIN 35 - input to sense if PBKA is enabled
-TMR=13 		#PIN 33 - input to sense if timer is enabled 
-CAL=1       #PIN XX - input to sense if calibration mode is enabled
-DIS=10 		#PIN 19 - input to sense a deposit event
-DEP=24 		#PIN 18 - input to sense a dispense event
-SIR=25 		#PIN 22 - output to turn on IR sensor LEDs
-MTR=11 		#PIN 23 - output to turn on dispense motor
-MT_SIG=5	#PIN 29 - output to indicate if hopper is (almost) empty
-TMR_SIG=16  	#PIN 36 - output to indicate if timed dispense is enabled
-PBKA_SIG=20 	#PIN 38 - output to indicate if PBKA is enabled
-CAL_SIG=2       #PIN XX - output to indicate if calibration mode is enabled
+TMR=6 		#PIN 31 - input to sense if timer is enabled 
+CAL=22      #PIN 15 - input to sense if calibration mode is enabled
+DIS=14 		#PIN 8 - input to sense a deposit event
+DEP=15 		#PIN 10 - input to sense a dispense event
+SIR=18 		#PIN 12 - output to turn on IR sensor LEDs
+MTR=4 		#PIN 7 - output to turn on dispense motor
+MT_SIG=17	#PIN 11 - output to indicate if hopper is (almost) empty
+TMR_SIG=12  	#PIN 32 - output to indicate if timed dispense is enabled
+PBKA_SIG=16 	#PIN 36 - output to indicate if PBKA is enabled
+CAL_SIG=23       #PIN 16 - output to indicate if calibration mode is enabled
 
 # Configure GPIO inputs with pull-downs
-GPIO.setup([PIR,MT,MAN,PBKA,TMR], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup([PIR,MT,MAN,PBKA,TMR,CAL], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+# For op-amps pull down, for comparators pull up.
 GPIO.setup([DEP,DIS], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 # Configure GPIO outputs and set them to low initially
 GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
