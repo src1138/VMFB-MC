@@ -28,11 +28,11 @@ GPIO.setmode(GPIO.BCM)		# uses gpio numbers to reference pins
 GPIO.setwarnings(False)		# disables GPIO warnings (ex. pin already in use)
 
 # Set GPIO pin numbers
-PIR=27 		#PIN 13 - input to sense PIR signal 
-MT=24 		#PIN 18	- input to sense hopper empty signal 
-MAN=26 		#PIN 37 - input to sense manual dispense event 
+PIR=27 		#PIN 13 - input to sense PIR signal
+MT=24 		#PIN 18	- input to sense hopper empty signal
+MAN=26 		#PIN 37 - input to sense manual dispense event
 PBKA=19 	#PIN 35 - input to sense if PBKA is enabled
-TMR=6 		#PIN 31 - input to sense if timer is enabled 
+TMR=6 		#PIN 31 - input to sense if timer is enabled
 CAL=22      #PIN 15 - input to sense if calibration mode is enabled
 DIS=14 		#PIN 8 - input to sense a deposit event
 DEP=15 		#PIN 10 - input to sense a dispense event
@@ -408,6 +408,7 @@ if defaultEnableTimer == 1:
 if defaultEnablePBKA == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
 
-# Everything is interrupt- and timer-based, so script sleeps until an interrupt or timer calls a function
+# Everything is interrupt- and timer-based, so script
+# sleeps until an interrupt or timer calls a function
 while True:
     time.sleep(1e6)
