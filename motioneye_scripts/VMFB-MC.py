@@ -346,7 +346,7 @@ def PIREnable(pin=None):
     #print("Start enablePIR()")
     logEvent("PIR","ENABLE",pin)
     GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR before adding to avoid exception
-	GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Add interrupt for PIR
+    GPIO.add_event_detect(PIR, GPIO.RISING, PIREvent, 100)	# Add interrupt for PIR
     #print("End enablePIR()")
 
 # Disables interrupt to call sensorsOn() when the PIR triggers
