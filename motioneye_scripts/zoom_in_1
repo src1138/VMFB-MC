@@ -4,7 +4,7 @@
 CAL=23 #RPi ZeroW Pin #16
 
 #Toggle the PBKA enable pin
-CAL_enable=$(cat /sys/class/gpio/gpio$PBKA/value)
+CAL_enable=$(cat /sys/class/gpio/gpio$CAL/value)
 if [ $CAL_enable == "1" ] 
 then
 	# disable calibration mode
