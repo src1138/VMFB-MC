@@ -4,6 +4,7 @@
 MAN_E=20 #RPi ZeroW Pin #38
 TMR_E=12 #RPi ZeroW Pin #32
 PBKA_E=16 #RPi ZeroW Pin #36
+CAL_E=23 #RPi ZeroW Pin #16
 
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$MAN_E ||
@@ -15,6 +16,9 @@ test -e /sys/class/gpio/gpio$TMR_E ||
 test -e /sys/class/gpio/gpio$PBKA_E ||
   (echo $PBKA_E > /sys/class/gpio/export \
    && echo out > /sys/class/gpio/gpio$PBKA_E/direction)
+test -e /sys/class/gpio/gpio$CAL_E ||
+  (echo $CAL_E > /sys/class/gpio/export \
+   && echo out > /sys/class/gpio/gpio$CAL_E/direction)
 
 # Try exporting the python outputs
 SIR=18 # pin 12
@@ -39,6 +43,7 @@ PBKA=19 #pin 35
 TMR=6 	#pin 31
 DIS=15 	#pin 10
 DEP=14 	#pin 8
+CAL=22  #pin 15
 
 test -e /sys/class/gpio/gpio$PIR ||
   (echo $PIR > /sys/class/gpio/export \
@@ -61,3 +66,6 @@ test -e /sys/class/gpio/gpio$DIS ||
 test -e /sys/class/gpio/gpio$DEP ||
   (echo $DEP > /sys/class/gpio/export \
    && echo in > /sys/class/gpio/gpio$DEP/direction)
+test -e /sys/class/gpio/gpio$CAL ||
+  (echo $CAL > /sys/class/gpio/export \
+   && echo in > /sys/class/gpio/gpio$CAL/direction)
