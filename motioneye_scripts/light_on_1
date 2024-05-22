@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assign pins
-PBKA=20 #RPi ZeroW Pin #38
+PBKA=16 #RPi ZeroW Pin #36
 
 #Toggle the PBKA enable pin
 PBKA_enable=$(cat /sys/class/gpio/gpio$PBKA/value)

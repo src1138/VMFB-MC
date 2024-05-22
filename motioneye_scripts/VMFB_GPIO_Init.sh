@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Set up GPIO pins
-MAN_E=21 #RPi ZeroW Pin #40
-TMR_E=16 #RPi ZeroW Pin #36
-PBKA_E=20 #RPi ZeroW Pin #38
+MAN_E=20 #RPi ZeroW Pin #38
+TMR_E=12 #RPi ZeroW Pin #32
+PBKA_E=16 #RPi ZeroW Pin #36
 
 # Verify they are set up, else initialize them
 test -e /sys/class/gpio/gpio$MAN_E ||
@@ -17,9 +17,9 @@ test -e /sys/class/gpio/gpio$PBKA_E ||
    && echo out > /sys/class/gpio/gpio$PBKA_E/direction)
 
 # Try exporting the python outputs
-SIR=25 # pin 22
-MTR=11 #pin 23
-MT_SIG=5 #pin 29
+SIR=18 # pin 12
+MTR=4 #pin 7
+MT_SIG=24 #pin 18
 
 test -e /sys/class/gpio/gpio$SIR ||
   (echo $SIR > /sys/class/gpio/export \
@@ -33,12 +33,12 @@ test -e /sys/class/gpio/gpio$MT_SIG ||
 
 # Exporting the python inputs
 PIR=27 	#pin 13
-MT=23 	#pin 16
+MT=17 	#pin 11
 MAN=26 	#pin 37
 PBKA=19 #pin 35
-TMR=13 	#pin 33
-DIS=10 	#pin 19
-DEP=24 	#pin 18
+TMR=6 	#pin 31
+DIS=15 	#pin 10
+DEP=14 	#pin 8
 
 test -e /sys/class/gpio/gpio$PIR ||
   (echo $PIR > /sys/class/gpio/export \

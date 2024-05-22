@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assign pins
-TMR=16 #RPi ZeroW Pin #36
+TMR=12 #RPi ZeroW Pin #32
 
 #Toggle the TMR enable pin
 Timer_enable=$(cat /sys/class/gpio/gpio$TMR/value)

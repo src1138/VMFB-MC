@@ -3,16 +3,14 @@
 # Set up input pins and check their values
 # Assign pins
 PIR=27 #RPi ZeroW Pin #13
-SIR=25 #RPi ZeroW Pin #22
-MTR=11 #RPi ZeroW Pin #23
-MT=5 #RPi ZeroW Pin #29
-DEP=24 #RPi ZeroW Pin #18
-DIS=10 #RPi ZeroW Pin #19
+SIR=18 #RPi ZeroW Pin #12
+MTR=4 #RPi ZeroW Pin #7
+MT=24 #RPi ZeroW Pin #18
+DEP=14 #RPi ZeroW Pin #8
+DIS=15 #RPi ZeroW Pin #10
 PBKA=19 #RPi ZeroW Pin #35
-TMR=13 #RPi ZeroW Pin #33
-
-# Get the values for the last script execution
-prev_valEMT=$(cat /data/log/prev_valEMT)
+TMR=6 #RPi ZeroW Pin #31
+CAL=22 #RPi ZeroW Pin #15
 
 # Get the current pin values
 valPIR=$(cat /sys/class/gpio/gpio$PIR/value)
@@ -23,6 +21,7 @@ valDEP=$(cat /sys/class/gpio/gpio$DEP/value)
 valDIS=$(cat /sys/class/gpio/gpio$DIS/value)
 valPBKA=$(cat /sys/class/gpio/gpio$PBKA/value)
 valTMR=$(cat /sys/class/gpio/gpio$TMR/value)
+valCAL=$(cat /sys/class/gpio/gpio$CAL/value)
 
 # Set the display text for the pin values 
 
@@ -83,6 +82,13 @@ else
 	PBKA_text=""
 fi
 
+if [ "$valCAL" == "1" ]
+then
+	CAL_text="&#128295;"
+else
+	CAL_text=""
+fi
+
 VMFB_logfile="/data/log/VMFB_$(date +%F).log"
 touch "$VMFB_logfile"
 PIRcount=$(grep -c 'PIR[[:blank:]]1' $VMFB_logfile)
@@ -92,7 +98,6 @@ MANcount=$(grep -c 'MAN[[:blank:]]DISPENSE' $VMFB_logfile)
 TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
 
 # Output to the UI
-echo "$MT_text$PIR_text<sup>$PIRcount</sup>|$SIR_text<sup>$PBKA_text</sup>|$DEP_text<sup>$DEPcount</sup>|$TMR_text<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$DIS_text<sup>$DIScount</sup>|$MTR_text"
+echo "$CAL_text$MT_text$PIR_text<sup>$PIRcount</sup>|$SIR_text<sup>$PBKA_text</sup>|$DEP_text<sup>$DEPcount</sup>|$TMR_text<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$DIS_text<sup>$DIScount</sup>|$MTR_text"
 # 1 second delay between executions
 echo 1 1>&2
-

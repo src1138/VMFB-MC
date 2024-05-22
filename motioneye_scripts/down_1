@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assign pins
-MAN=21 #RPi ZeroW Pin #40
+MAN=20 #RPi ZeroW Pin #38
  
 # Set the MAN pin to high, then back to low
 echo "1" >| /sys/class/gpio/gpio$MAN/value
