@@ -17,8 +17,8 @@ TIMED_DISPENSE_END_TIME=1600	# time of day timed dispense will stop when enabled
 				# (HHMM format, don't use leading zeros)
 PBKA_ON_PERIOD=1			# seconds the PBKA will sink current to keep a powerbank on
 PBKA_OFF_PERIOD=10		# seconds between PBKA current sinks
-DEFAULT_toggle_timed_dispense=1   		# set to 1 to enable timer on startup
-DEFAULT_toggle_PBKA=0      	# set to 1 to enable PBKA on startup
+DEFAULT_TOGGLE_TIMED_DISPENSE=1   		# set to 1 to enable timer on startup
+DEFAULT_TOGGLE_PBKA=0      	# set to 1 to enable PBKA on startup
 
 # Initialize RPi GPIO
 # GPIO.setmode(GPIO.BOARD)	# uses board pin numbers to reference pins
@@ -408,10 +408,10 @@ GPIO.output(SIR,0)
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts
 # Moved adding DEP and DIS interrupts to sensor_IR_on and remove them in sensor_IR_off
 enable_PIR("INIT")
-GPIO.add_event_detect(MAN, GPIO.RISING, manual_dispense, 100)	# Interrupt for manual dispense
-GPIO.add_event_detect(TMR, GPIO.BOTH, toggle_timed_dispense, 100)	# Interupt for timer enable
-GPIO.add_event_detect(PBKA, GPIO.BOTH, toggle_PBKA, 100)	# Interrupt for PBKA enable
-GPIO.add_event_detect(CAL, GPIO.BOTH, toggle_calibration_mode, 100)	# Interrupt for calibration mode enable
+GPIO.add_event_detect(MAN, GPIO.RISING, manual_dispense, 100)	# manual dispense
+GPIO.add_event_detect(TMR, GPIO.BOTH, toggle_timed_dispense, 100)	# timer toggle
+GPIO.add_event_detect(PBKA, GPIO.BOTH, toggle_PBKA, 100)	# PBKA toggle
+GPIO.add_event_detect(CAL, GPIO.BOTH, toggle_calibration_mode, 100)	# calibration mode toggle
 
 # Set up timers
 # Timer for sensors, calls sensor_IR_off when SENSOR_IR_TIMEOUT seconds have passed
