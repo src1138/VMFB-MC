@@ -18,7 +18,7 @@ TIMED_DISPENSE_END_TIME=1600	# time of day timed dispense will stop when enabled
 PBKA_ON_PERIOD=1			# seconds the PBKA will sink current to keep a powerbank on
 PBKA_OFF_PERIOD=10		# seconds between PBKA current sinks
 DEFAULT_TOGGLE_TIMED_DISPENSE=1   		# set to 1 to enable timer on startup
-DEFAULT_toggle_pbka=0      	# set to 1 to enable PBKA on startup
+DEFAULT_TOGGLE_PBKA=0      	# set to 1 to enable PBKA on startup
 
 # Initialize RPi GPIO
 # GPIO.setmode(GPIO.BOARD)	# uses board pin numbers to reference pins
@@ -212,11 +212,11 @@ def manual_dispense(pin=None):
 def timed_dispense(pin="TO"):
     '''Dispenses a peanut and restarts the timer''' 
     #print("Start timed_dispense()")
-    nowTime=int(datetime.now().strftime("%H%M"))
+    now_time=int(datetime.now().strftime("%H%M"))
     # If you want to define multiple windows of timer operation
     # of operation on certain days or dates you can do so in
     # the following if statement
-    if (nowTime >= TIMED_DISPENSE_START_TIME) & (nowTime <= TIMED_DISPENSE_END_TIME):
+    if (now_time >= TIMED_DISPENSE_START_TIME) & (now_time <= TIMED_DISPENSE_END_TIME):
         log_event("TMR","DISPENSE",pin)
         sensor_ir_on(pin)
         motor_on(pin)
@@ -284,7 +284,6 @@ def toggle_pbka(pin=None):
         pbka_idle_timer = threading.Timer(PBKA_OFF_PERIOD, pbka_sink)
         pbka_idle_timer.start()
     else:
-        global pbka_sink_timer
         if pbka_sink_timer.is_alive() is True:
             pbka_sink_timer.cancel()
         if pbka_idle_timer.is_alive() is True:
@@ -426,9 +425,9 @@ pbka_sink_timer = threading.Timer(PBKA_ON_PERIOD, pbka_idle)
 pbka_idle_timer = threading.Timer(PBKA_OFF_PERIOD, pbka_sink)
 
 # Initialize timed dispense and PBKA enable/disable - do this after defining interrupts and timers
-if DEFAULT_toggle_timed_dispense == 1:
+if DEFAULT_TOGGLE_TIMED_DISPENSE == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
-if DEFAULT_toggle_pbka == 1:
+if DEFAULT_TOGGLE_PBKA == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
 
 # Everything is interrupt- and timer-based, so script
