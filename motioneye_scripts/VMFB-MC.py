@@ -65,8 +65,7 @@ def pir_event(pin=None):
     #print("Start pir_event()")
     log_event("PIR",1,pin)
     # Turn on the sensors if not in calibration mode
-    if GPIO.input(CAL) == 0:
-        sensor_ir_on(pin)
+    sensor_ir_on(pin)
     #print("End pir_event()")
 
 # When sensors are on, checks the empty sensor and updates the MT_SIG pin state
@@ -180,13 +179,16 @@ def dispense_event(pin=None):
 def motor_on(pin=None):
     '''Turns the dispense motor on'''
     #print("Start motor_on()")
-    log_event("MTR","ON",pin)
-    GPIO.output(MTR,1)
-    global motor_timer
-    if motor_timer.is_alive() is True:
-        motor_timer.cancel()
-    motor_timer = threading.Timer(MOTOR_TIMEOUT, motor_off)
-    motor_timer.start()
+    if GPIO.input(CAL) == 0:
+        log_event("MTR","ON",pin)
+        GPIO.output(MTR,1)
+        global motor_timer
+        if motor_timer.is_alive() is True:
+            motor_timer.cancel()
+        motor_timer = threading.Timer(MOTOR_TIMEOUT, motor_off)
+        motor_timer.start()
+    else:
+        log_event("MTR","SUSPENDED",pin)
     #print("End motor_on()")
 
 # Turns off the motor and stops the motor timeout timer
@@ -368,14 +370,6 @@ def toggle_calibration_mode(pin=None):
     event="DISABLED"
     if GPIO.input(CAL) == 1: # Calibration mode is enabled
         event="ENABLED"
-        sensor_ir_off(pin) # Make sure interrupts are removed for deposit and dispense sensors
-        suspend_timed_dispense(pin) # Suspend timed dispense if it is enabled
-        suspend_pbka(pin) # Suspensd the PBKA if it is enabled
-        GPIO.output(SIR,1) # Turn on the sensor LEDs
-    else: # Calibration mode is disabled
-        GPIO.output(SIR,0) # Turn off the sensor LEDs
-        toggle_timed_dispense(pin) # Turn on timed dispense if it is enabled
-        toggle_pbka(pin) # Turn on the PBKA if it is enabled
     log_event("CAL",event,pin)
     #print("End toggle_calibration_mode()")
 
