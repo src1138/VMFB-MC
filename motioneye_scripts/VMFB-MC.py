@@ -53,8 +53,9 @@ GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 # Logs events as <timestamp>\t<eventType>\t<event>, casts areguments as strings
 def logEvent(eventType=None,event=None,pin=None):
     #print("Start logEvent()")
+    timestamp = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-        file.write(str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
+        file.write(timestamp + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
     #print("End logEvent()")
 
 # When PIR signal goes high, enables sensors
