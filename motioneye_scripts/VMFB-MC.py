@@ -64,7 +64,7 @@ def PIREvent(pin=None):
     sensorsOn(pin)
     #print("End PIREvent()")
 
-# When sesors are on, checks the empty sensor and updates the MT_SIG pin state
+# When sensors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low
 def updateMT(pin=None):
     #print("Start updateMT()")
@@ -121,7 +121,7 @@ def sensorsOff(pin="TO"):
     #print("Start sensorsOff()")
     # Some PIR sensors stay on until they don't detect anything
     # this will check again to make sure the PIR is not triggering before disabling the sensors
-    if GPIO.input(PIR) == 1:
+    if (GPIO.input(PIR) == 1) & (pin == "TO"):
         sensorsOn(PIR)
     else:
         updateMT(pin)
@@ -363,10 +363,11 @@ def CALEnable(pin=None):
     if GPIO.input(CAL) == 1: # Calibration mode is enabled
         event="ENABLED"
         PIRDisable(pin) # Disable the PIR interrupt
+        sensorsOff(pin) # Make sure interrupts are removed for deposit and dispense sensors
+        motorOff(pin) # Turn off the motor in case it is running
         TMRSuspend(pin) # Suspend timed dispense if it is enabled
         PBKASuspend(pin) # Suspensd the PBKA if it is enabled
         GPIO.output(SIR,1) # Turn on the sensor LEDs
-        motorOff(pin) # Turn off the motor in case it is running
     else: # Calibration mode is disabled
         GPIO.output(SIR,0) # Turn off the sensor LEDs
         PIREnable(pin) # Enable the PIR interrupt
