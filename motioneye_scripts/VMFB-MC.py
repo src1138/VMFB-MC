@@ -366,6 +366,7 @@ def CALEnable(pin=None):
         TMRSuspend(pin) # Suspend timed dispense if it is enabled
         PBKASuspend(pin) # Suspensd the PBKA if it is enabled
         GPIO.output(SIR,1) # Turn on the sensor LEDs
+        motorOff(pin) # Turn off the motor in case it is running
     else: # Calibration mode is disabled
         GPIO.output(SIR,0) # Turn off the sensor LEDs
         PIREnable(pin) # Enable the PIR interrupt
