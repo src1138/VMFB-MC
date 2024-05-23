@@ -85,7 +85,6 @@ def sensorsOn(pin=None):
     if GPIO.input(PBKA) == 1:
         PBKASuspend(pin)
     GPIO.output(SIR,1)
-    global sensorTimer
     if sensorTimer.is_alive() is True:
         sensorTimer.cancel()
     sensorTimer = threading.Timer(sensorTimeout,sensorsOff)
@@ -127,7 +126,6 @@ def sensorsOff(pin="TO"):
         updateMT(pin)
         logEvent("SIR","OFF",pin)
         GPIO.output(SIR,0)
-        global sensorTimer
         if sensorTimer.is_alive() is True:
             sensorTimer.cancel()
         if GPIO.input(PBKA) == 1:
@@ -172,7 +170,6 @@ def motorOn(pin=None):
     #print("Start motorOn()")
     logEvent("MTR","ON",pin)
     GPIO.output(MTR,1)
-    global motorTimer
     if motorTimer.is_alive() is True:
         motorTimer.cancel()
     motorTimer = threading.Timer(motorTimeout,motorOff)
@@ -184,7 +181,6 @@ def motorOff(pin="TO"):
     #print("Start motorOff()")
     logEvent("MTR","OFF",pin)
     GPIO.output(MTR,0)
-    global motorTimer
     if motorTimer.is_alive() is True:
         motorTimer.cancel()
     #print("End motorOff()")
@@ -212,7 +208,6 @@ def timedDispense(pin="TO"):
         motorOn(pin)
     else:
         logEvent("TMR","SUSPENDED",pin)
-    global timedDispenseTimer
     if timedDispenseTimer.is_alive() is True:
         timedDispenseTimer.cancel()
     timedDispenseTimer = threading.Timer(timedDispensePeriod,timedDispense)
@@ -222,7 +217,6 @@ def timedDispense(pin="TO"):
 def TMRSuspend(pin=None):
     #print("Start TMRSuspend()")
     if GPIO.input(TMR) == 1: # only suspend if TMR is enabled
-        global timedDispenseTimer
         if timedDispenseTimer.is_alive() is True:
             timedDispenseTimer.cancel()
     logEvent("TMR","SUSPEND",pin)
@@ -233,7 +227,6 @@ def TMRSuspend(pin=None):
 def TMREnable(pin=None):
     #print("Start TMREnable()")
     event="DISABLED"
-    global timedDispenseTimer
     if GPIO.input(TMR) == 1:
         event="ENABLED"
         if timedDispenseTimer.is_alive() is True:
@@ -250,8 +243,6 @@ def TMREnable(pin=None):
 def PBKASuspend(pin=None):
     #print("Start PBKASuspend()")
     if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
-        global PBKAOnTimer
-        global PBKAOffTimer
         if PBKAOnTimer.is_alive() is True:
             PBKAOnTimer.cancel()
         if PBKAOffTimer.is_alive() is True:
@@ -265,8 +256,6 @@ def PBKASuspend(pin=None):
 def PBKAEnable(pin=None):
     #print("Start PBKAEnable()")
     event="DISABLED"
-    global PBKAOnTimer
-    global PBKAOffTimer
     if GPIO.input(PBKA) == 1:
         event="ENABLED"
         if PBKAOffTimer.is_alive() is True:
@@ -287,7 +276,6 @@ def PBKAOn(pin="TO"):
     #print("Start PBKAOn()")
     logEvent("PBKA","SINK",pin)
     GPIO.output(SIR,1)
-    global PBKAOnTimer
     if PBKAOnTimer.is_alive() is True:
         PBKAOnTimer.cancel()
     PBKAOnTimer = threading.Timer(pbkaOnPeriod, PBKAOff)
@@ -299,7 +287,6 @@ def PBKAOff(pin="TO"):
     #print("Start PBKAOff()")
     logEvent("PBKA","IDLE",pin)
     GPIO.output(SIR,0)
-    global PBKAOffTimer
     if PBKAOffTimer.is_alive() is True:
         PBKAOffTimer.cancel()
     PBKAOffTimer = threading.Timer(pbkaOffPeriod, PBKAOn)
@@ -359,11 +346,10 @@ def PIRDisable(pin=None):
     GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR
     logEvent("PIR","DISABLE",pin)
     #print("End disablePIR()")
-    
+
 def sensorsDisable(pin=None):
     #print("Start sensorsDisable()")
     # Stop the sensor IR timeout timer
-    global sensorTimer
     if sensorTimer.is_alive() is True:
         sensorTimer.cancel()
     # Remove event detect for DEP and DIS
