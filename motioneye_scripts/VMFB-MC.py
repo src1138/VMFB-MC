@@ -18,7 +18,7 @@ TIMED_DISPENSE_END_TIME=1600	# time of day timed dispense will stop when enabled
 PBKA_ON_PERIOD=1			# seconds the PBKA will sink current to keep a powerbank on
 PBKA_OFF_PERIOD=10		# seconds between PBKA current sinks
 DEFAULT_TOGGLE_TIMED_DISPENSE=1   		# set to 1 to enable timer on startup
-DEFAULT_TOGGLE_PBKA=0      	# set to 1 to enable PBKA on startup
+DEFAULT_toggle_pbka=0      	# set to 1 to enable PBKA on startup
 
 # Initialize RPi GPIO
 # GPIO.setmode(GPIO.BOARD)	# uses board pin numbers to reference pins
@@ -50,28 +50,28 @@ GPIO.setup([DEP,DIS], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 # Configure GPIO outputs and set them to low initially
 GPIO.setup([SIR,MTR,MT_SIG], GPIO.OUT, initial=GPIO.LOW)
 
-# Logs events as <timestamp>\t<eventType>\t<event>, casts areguments as strings
-def log_event(eventType=None,event=None,pin=None):
+# Logs events as <timestamp>\t<event_type>\t<event>, casts areguments as strings
+def log_event(event_type=None,event=None,pin=None):
     '''logs interrupt and timer events'''
     #print("Start log_event()")
     timestamp = str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     with open("/data/log/VMFB_"+str(datetime.now().strftime("%Y-%m-%d"))+".log", "a+") as file:
-        file.write(timestamp + "	" + str(eventType) + "	" + str(event) + "	" + str(pin) + "\n")
+        file.write(timestamp + "	" + str(event_type) + "	" + str(event) + "	" + str(pin) + "\n")
     #print("End log_event()")
 
 # When PIR signal goes high, enables sensors
-def PIR_event(pin=None):
+def pir_event(pin=None):
     '''Turns the sensor IR LEDs on'''
-    #print("Start PIR_event()")
+    #print("Start pir_event()")
     log_event("PIR",1,pin)
-    sensor_IR_on(pin)
-    #print("End PIR_event()")
+    sensor_ir_on(pin)
+    #print("End pir_event()")
 
 # When sensors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low
-def update_MT(pin=None):
+def update_mt(pin=None):
     '''Updates the alue of the empty indicator output pin'''
-    #print("Start update_MT()")
+    #print("Start update_mt()")
     event=0
     if GPIO.input(MT) == 1:
         GPIO.output(MT_SIG,1)
@@ -79,21 +79,21 @@ def update_MT(pin=None):
     else:
         GPIO.output(MT_SIG,0)
     log_event("MT",event,pin)
-    #print("End update_MT()")
+    #print("End update_mt()")
 
 # Suspends PBKA if it is enabled, turns on sensor LEDs,
 # updates empty sensor status, and (re)starts sensor timeout timer
-def sensor_IR_on(pin=None):
+def sensor_ir_on(pin=None):
     '''Turns the IR LEDs for the sensors on'''
-    #print("Start sensor_IR_on()")
+    #print("Start sensor_ir_on()")
     log_event("SIR","ON",pin)
     if GPIO.input(PBKA) == 1:
-        suspend_PBKA(pin)
+        suspend_pbka(pin)
     GPIO.output(SIR,1)
     global sensor_timer
     if sensor_timer.is_alive() is True:
         sensor_timer.cancel()
-    sensor_timer = threading.Timer(SENSOR_IR_TIMEOUT, sensor_IR_off)
+    sensor_timer = threading.Timer(SENSOR_IR_TIMEOUT, sensor_ir_off)
     sensor_timer.start()
     # Add event detect for DEP and DIS, especially when using a comparator you need a bouncetime
     # around 1000ms
@@ -108,7 +108,7 @@ def sensor_IR_on(pin=None):
     # for LM358 op-amps, a 100ms debounce should be sufficient
     GPIO.add_event_detect(DEP, GPIO.RISING, deposit_event, 100)
     GPIO.add_event_detect(DIS, GPIO.RISING, dispense_event, 100)
-    update_MT(pin)
+    update_mt(pin)
     # if the trigger came from the PIR, enable camera, enable motion detection in motioneye
     # and log the event
     if pin == PIR:
@@ -118,25 +118,25 @@ def sensor_IR_on(pin=None):
         # urllib2.urlopen("http://localhost:7999/1/detection/start").read()
         os.system('curl http://localhost:7999/1/detection/start')
         log_event("MOD","START",pin)
-    #print("End sensor_IR_on()")
+    #print("End sensor_ir_on()")
 
 # Updates empty sensor status, turns off sensor LEDs, stops sensor timeout timer,
 # re-enables PBKA if it is enabled
-def sensor_IR_off(pin="TO"):
+def sensor_ir_off(pin="TO"):
     '''Turns the IR LEDs for the sensors off'''
-    #print("Start sensor_IR_off()")
+    #print("Start sensor_ir_off()")
     # Some PIR sensors stay on until they don't detect anything
     # this will check again to make sure the PIR is not triggering before disabling the sensors
     if GPIO.input(PIR) == 1:
-        sensor_IR_on(PIR)
+        sensor_ir_on(PIR)
     else:
-        update_MT(pin)
+        update_mt(pin)
         log_event("SIR","OFF",pin)
         GPIO.output(SIR,0)
         if sensor_timer.is_alive() is True:
             sensor_timer.cancel()
         if GPIO.input(PBKA) == 1:
-            toggle_PBKA(pin)
+            toggle_pbka(pin)
         # Remove event detect for DEP and DIS
         GPIO.remove_event_detect(DEP)
         GPIO.remove_event_detect(DIS)
@@ -151,7 +151,7 @@ def sensor_IR_off(pin="TO"):
         log_event("REC","STOP",pin)
         # disable the camera to save power while sensors are off
         # disable_camera(pin)
-    #print("End sensor_IR_off()")
+    #print("End sensor_ir_off()")
 
 # When a deposit event is detected, turn on the dispense motor
 def deposit_event(pin=None):
@@ -202,7 +202,7 @@ def manual_dispense(pin=None):
     '''Dispenses a peanut''' 
     #print("Start manual_dispense()")
     log_event("MAN","DISPENSE",pin)
-    sensor_IR_on(pin)
+    sensor_ir_on(pin)
     motor_on(pin)
     #print("End manual_dispense()")
 
@@ -218,7 +218,7 @@ def timed_dispense(pin="TO"):
     # the following if statement
     if (nowTime >= TIMED_DISPENSE_START_TIME) & (nowTime <= TIMED_DISPENSE_END_TIME):
         log_event("TMR","DISPENSE",pin)
-        sensor_IR_on(pin)
+        sensor_ir_on(pin)
         motor_on(pin)
     else:
         log_event("TMR","SUSPENDED",pin)
@@ -258,66 +258,66 @@ def toggle_timed_dispense(pin=None):
     #print("End toggle_timed_dispense()")
 
 # Suspends the PBKA current sinking, stops PBKA timers
-def suspend_PBKA(pin=None):
+def suspend_pbka(pin=None):
     '''Stops the PBKA until it is toggled back on''' 
-    #print("Start suspend_PBKA()")
+    #print("Start suspend_pbka()")
     if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
-        if PBKA_sink_timer.is_alive() is True:
-            PBKA_sink_timer.cancel()
-        if PBKA_idle_timer.is_alive() is True:
-            PBKA_idle_timer.cancel()
+        if pbka_sink_timer.is_alive() is True:
+            pbka_sink_timer.cancel()
+        if pbka_idle_timer.is_alive() is True:
+            pbka_idle_timer.cancel()
     log_event("PBKA","SUSPEND",pin)
-    #print("End suspend_PBKA()")
+    #print("End suspend_pbka()")
 
 # When the PBKA pin changes state or sensors turn off when the PBKA is enabled,
 # (re)starts the PBKA Off timer to start the current sink cycle
 # When PBKA is disabled, it stops the PBKA timers
-def toggle_PBKA(pin=None):
+def toggle_pbka(pin=None):
     '''Check the PBKA gpio pin value and enable(1) or disable(0) current sinking''' 
-    #print("Start toggle_PBKA()")
+    #print("Start toggle_pbka()")
     event="DISABLED"
     if GPIO.input(PBKA) == 1:
-        global PBKA_idle_timer
+        global pbka_idle_timer
         event="ENABLED"
-        if PBKA_idle_timer.is_alive() is True:
-            PBKA_idle_timer.cancel()
-        PBKA_idle_timer = threading.Timer(PBKA_OFF_PERIOD, PBKA_sink)
-        PBKA_idle_timer.start()
+        if pbka_idle_timer.is_alive() is True:
+            pbka_idle_timer.cancel()
+        pbka_idle_timer = threading.Timer(PBKA_OFF_PERIOD, pbka_sink)
+        pbka_idle_timer.start()
     else:
-        global PBKA_sink_timer
-        if PBKA_sink_timer.is_alive() is True:
-            PBKA_sink_timer.cancel()
-        if PBKA_idle_timer.is_alive() is True:
-            PBKA_idle_timer.cancel()
+        global pbka_sink_timer
+        if pbka_sink_timer.is_alive() is True:
+            pbka_sink_timer.cancel()
+        if pbka_idle_timer.is_alive() is True:
+            pbka_idle_timer.cancel()
     log_event("PBKA",event,pin)
-    #print("End toggle_PBKA()")
+    #print("End toggle_pbka()")
 
 # Turns on sensor LEDs to sink current and keep powerbanks on,
 # (re)starts timer to keep them on for number of seconds specified
-def PBKA_sink(pin="TO"):
+def pbka_sink(pin="TO"):
     '''Starts timer to trigger the end of the sink'''
-    #print("Start PBKA_sink()")
+    #print("Start pbka_sink()")
     log_event("PBKA","SINK",pin)
     GPIO.output(SIR,1)
-    global PBKA_sink_timer
-    if PBKA_sink_timer.is_alive() is True:
-        PBKA_sink_timer.cancel()
-    PBKA_sink_timer = threading.Timer(PBKA_ON_PERIOD, PBKA_idle)
-    PBKA_sink_timer.start()
-    #print("End PBKA_sink()")
+    global pbka_sink_timer
+    if pbka_sink_timer.is_alive() is True:
+        pbka_sink_timer.cancel()
+    pbka_sink_timer = threading.Timer(PBKA_ON_PERIOD, pbka_idle)
+    pbka_sink_timer.start()
+    #print("End pbka_sink()")
 
 # Turns off sensor LEDs, (re)starts timer to turn them back on
-def PBKA_idle(pin="TO"):
+def pbka_idle(pin="TO"):
     '''Starts timer to trigger the next sink'''
-    #print("Start PBKA_idle()")
+    #print("Start pbka_idle()")
     log_event("PBKA","IDLE",pin)
     GPIO.output(SIR,0)
-    global PBKA_idle_timer
-    if PBKA_idle_timer.is_alive() is True:
-        PBKA_idle_timer.cancel()
-    PBKA_idle_timer = threading.Timer(PBKA_OFF_PERIOD, PBKA_sink)
-    PBKA_idle_timer.start()
-    #print("End PBKA_idle()")
+    global pbka_idle_timer
+    if pbka_idle_timer.is_alive() is True:
+        pbka_idle_timer.cancel()
+    pbka_idle_timer = threading.Timer(PBKA_OFF_PERIOD, pbka_sink)
+    pbka_idle_timer.start()
+    #print("End pbka_idle()")
 
 # Disable camera to save power
 def disable_camera(pin=None):
@@ -360,17 +360,17 @@ def enable_camera(pin=None):
     log_event("CAM","ENABLE",pin)
     #print("End enable_camera()")
 
-# Enables interrupt to call sensor_IR_on() when the PIR triggers
-def enable_PIR(pin=None):
+# Enables interrupt to call sensor_ir_on() when the PIR triggers
+def enable_pir(pin=None):
     '''Add/restore the event detect to the PIR gpio pin'''
     #print("Start enablePIR()")
     log_event("PIR","ENABLE",pin)
     GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR before adding to avoid exception
-    GPIO.add_event_detect(PIR, GPIO.RISING, PIR_event, 100)	# Add interrupt for PIR
+    GPIO.add_event_detect(PIR, GPIO.RISING, pir_event, 100)	# Add interrupt for PIR
     #print("End enablePIR()")
 
-# Disables interrupt to call sensor_IR_on() when the PIR triggers
-def disable_PIR(pin=None):
+# Disables interrupt to call sensor_ir_on() when the PIR triggers
+def disable_pir(pin=None):
     '''Remove the event detect from the PIR gpio pin'''
     #print("Start disablePIR()")
     GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR
@@ -384,16 +384,16 @@ def toggle_calibration_mode(pin=None):
     event="DISABLED"
     if GPIO.input(CAL) == 1: # Calibration mode is enabled
         event="ENABLED"
-        disable_PIR(pin) # Disable the PIR interrupt
-        sensor_IR_off(pin) # Make sure interrupts are removed for deposit and dispense sensors
+        disable_pir(pin) # Disable the PIR interrupt
+        sensor_ir_off(pin) # Make sure interrupts are removed for deposit and dispense sensors
         suspend_timed_dispense(pin) # Suspend timed dispense if it is enabled
-        suspend_PBKA(pin) # Suspensd the PBKA if it is enabled
+        suspend_pbka(pin) # Suspensd the PBKA if it is enabled
         GPIO.output(SIR,1) # Turn on the sensor LEDs
     else: # Calibration mode is disabled
         GPIO.output(SIR,0) # Turn off the sensor LEDs
-        enable_PIR(pin) # Enable the PIR interrupt
+        enable_pir(pin) # Enable the PIR interrupt
         toggle_timed_dispense(pin) # Turn on timed dispense if it is enabled
-        toggle_PBKA(pin) # Turn on the PBKA if it is enabled
+        toggle_pbka(pin) # Turn on the PBKA if it is enabled
     log_event("CAL",event,pin)
     #print("End toggle_calibration_mode()")
 
@@ -402,33 +402,33 @@ log_event("SCRIPT","START","INIT")
 
 # Initialize MT Sensor state - enable the sensor LEDs, check the sensor, and disable the sensor LEDs
 GPIO.output(SIR,1)
-update_MT("INIT")
+update_mt("INIT")
 GPIO.output(SIR,0)
 
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts
-# Moved adding DEP and DIS interrupts to sensor_IR_on and remove them in sensor_IR_off
-enable_PIR("INIT")
+# Moved adding DEP and DIS interrupts to sensor_ir_on and remove them in sensor_ir_off
+enable_pir("INIT")
 GPIO.add_event_detect(MAN, GPIO.RISING, manual_dispense, 100)	# manual dispense
 GPIO.add_event_detect(TMR, GPIO.BOTH, toggle_timed_dispense, 100)	# timer toggle
-GPIO.add_event_detect(PBKA, GPIO.BOTH, toggle_PBKA, 100)	# PBKA toggle
+GPIO.add_event_detect(PBKA, GPIO.BOTH, toggle_pbka, 100)	# PBKA toggle
 GPIO.add_event_detect(CAL, GPIO.BOTH, toggle_calibration_mode, 100)	# calibration mode toggle
 
 # Set up timers
-# Timer for sensors, calls sensor_IR_off when SENSOR_IR_TIMEOUT seconds have passed
-sensor_timer = threading.Timer(SENSOR_IR_TIMEOUT, sensor_IR_off)
+# Timer for sensors, calls sensor_ir_off when SENSOR_IR_TIMEOUT seconds have passed
+sensor_timer = threading.Timer(SENSOR_IR_TIMEOUT, sensor_ir_off)
 # Timer for motor, calls motor_off when MOTOR_TIMEOUT seconds have passed
 motor_timer = threading.Timer(MOTOR_TIMEOUT, motor_off)
 # Timer for timed dispense, triggers a dispense event every TIMED_DISPENSE_PERIOD seconds
 timed_dispense_timer = threading.Timer(TIMED_DISPENSE_PERIOD, timed_dispense)
 # Timer for PBKA curent sink, sinks current for PBKA_ON_PERIOD
-PBKA_sink_timer = threading.Timer(PBKA_ON_PERIOD, PBKA_idle)
+pbka_sink_timer = threading.Timer(PBKA_ON_PERIOD, pbka_idle)
 # Timer for PBKA interval between current sinks, waits PBKA_OFF_PERIOD seconds between sinks
-PBKA_idle_timer = threading.Timer(PBKA_OFF_PERIOD, PBKA_sink)
+pbka_idle_timer = threading.Timer(PBKA_OFF_PERIOD, pbka_sink)
 
 # Initialize timed dispense and PBKA enable/disable - do this after defining interrupts and timers
 if DEFAULT_toggle_timed_dispense == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
-if DEFAULT_toggle_PBKA == 1:
+if DEFAULT_toggle_pbka == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
 
 # Everything is interrupt- and timer-based, so script
