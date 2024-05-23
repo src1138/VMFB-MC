@@ -389,7 +389,7 @@ GPIO.output(SIR,0)
 
 # Set up GPIO interrupts - adding a bouncetime of 100ms to all interrupts
 # Moved adding DEP and DIS interrupts to sensor_ir_on and remove them in sensor_ir_off
-enable_pir("INIT")
+GPIO.add_event_detect(PIR, GPIO.RISING, pir_event, 100)	# PIR trigger
 GPIO.add_event_detect(MAN, GPIO.RISING, manual_dispense, 100)	# manual dispense
 GPIO.add_event_detect(TMR, GPIO.BOTH, toggle_timed_dispense, 100)	# timer toggle
 GPIO.add_event_detect(PBKA, GPIO.BOTH, toggle_pbka, 100)	# PBKA toggle
