@@ -29,7 +29,7 @@ GPIO.setwarnings(False)		# disables GPIO warnings (ex. pin already in use)
 
 # Set GPIO pin numbers
 PIR=27 		#PIN 13 - input to sense PIR signal
-MT=24 		#PIN 18	- input to sense hopper empty signal
+MT=17 		#PIN 11	- input to sense hopper empty signal
 MAN=26 		#PIN 37 - input to sense manual dispense event
 PBKA=19 	#PIN 35 - input to sense if PBKA is enabled
 TMR=6 		#PIN 31 - input to sense if timer is enabled
@@ -38,7 +38,7 @@ DIS=15 		#PIN 10 - input to sense a deposit event
 DEP=14 		#PIN 8 - input to sense a dispense event
 SIR=18 		#PIN 12 - output to turn on IR sensor LEDs
 MTR=4 		#PIN 7 - output to turn on dispense motor
-MT_SIG=17	#PIN 11 - output to indicate if hopper is (almost) empty
+MT_SIG=24	#PIN 18 - output to indicate if hopper is (almost) empty
 TMR_SIG=12  	#PIN 32 - output to indicate if timed dispense is enabled
 PBKA_SIG=16 	#PIN 36 - output to indicate if PBKA is enabled
 CAL_SIG=23       #PIN 16 - output to indicate if calibration mode is enabled
