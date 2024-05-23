@@ -64,7 +64,9 @@ def pir_event(pin=None):
     '''Turns the sensor IR LEDs on'''
     #print("Start pir_event()")
     log_event("PIR",1,pin)
-    sensor_ir_on(pin)
+    # Turn on the sensors if not in calibration mode
+    if GPIO.input(CAL) == 0:
+        sensor_ir_on(pin)
     #print("End pir_event()")
 
 # When sensors are on, checks the empty sensor and updates the MT_SIG pin state
@@ -359,23 +361,6 @@ def enable_camera(pin=None):
     log_event("CAM","ENABLE",pin)
     #print("End enable_camera()")
 
-# Enables interrupt to call sensor_ir_on() when the PIR triggers
-def enable_pir(pin=None):
-    '''Add/restore the event detect to the PIR gpio pin'''
-    #print("Start enablePIR()")
-    log_event("PIR","ENABLE",pin)
-    GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR before adding to avoid exception
-    GPIO.add_event_detect(PIR, GPIO.RISING, pir_event, 100)	# Add interrupt for PIR
-    #print("End enablePIR()")
-
-# Disables interrupt to call sensor_ir_on() when the PIR triggers
-def disable_pir(pin=None):
-    '''Remove the event detect from the PIR gpio pin'''
-    #print("Start disablePIR()")
-    GPIO.remove_event_detect(PIR)	# Remove interrupt for PIR
-    log_event("PIR","DISABLE",pin)
-    #print("End disablePIR()")
-
 # When the CAL pin changes state
 def toggle_calibration_mode(pin=None):
     '''Check the CAL gpio pin value and enable(1) or disable(0) calibration mode''' 
@@ -383,14 +368,12 @@ def toggle_calibration_mode(pin=None):
     event="DISABLED"
     if GPIO.input(CAL) == 1: # Calibration mode is enabled
         event="ENABLED"
-        disable_pir(pin) # Disable the PIR interrupt
         sensor_ir_off(pin) # Make sure interrupts are removed for deposit and dispense sensors
         suspend_timed_dispense(pin) # Suspend timed dispense if it is enabled
         suspend_pbka(pin) # Suspensd the PBKA if it is enabled
         GPIO.output(SIR,1) # Turn on the sensor LEDs
     else: # Calibration mode is disabled
         GPIO.output(SIR,0) # Turn off the sensor LEDs
-        enable_pir(pin) # Enable the PIR interrupt
         toggle_timed_dispense(pin) # Turn on timed dispense if it is enabled
         toggle_pbka(pin) # Turn on the PBKA if it is enabled
     log_event("CAL",event,pin)
