@@ -5,7 +5,7 @@ import time			# to handle timers
 import threading		# to handle timer and interupt threads
 # import urllib2		# to handle http requests to enable/disable motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
-import RPi import GPIO		# for GPIO access
+from RPi import GPIO		# for GPIO access
 
 # Configuration variables
 SENSOR_IR_TIMEOUT=30		# seconds the sensors stay on after last PIR trigger
