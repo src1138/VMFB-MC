@@ -1,24 +1,33 @@
 #!/usr/bin/python
-'''Controls the Vending Machine For Birds using the VMFB-MC PCB'''
+
 from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
 # import urllib2		# to handle http requests to enable/disable motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
-from RPi import GPIO		# for GPIO access
+import RPi.GPIO as GPIO		# for GPIO access
+import smtplib			# for sending event alert emails
 
 # Configuration variables
 SENSOR_IR_TIMEOUT=30		# seconds the sensors stay on after last PIR trigger
-MOTOR_TIMEOUT=10			# soconds dispenser motor stays on before it times out
+MOTOR_TIMEOUT=10		# soconds dispenser motor stays on before it times out
 TIMED_DISPENSE_PERIOD=3600	# seconds between timed dispense when it is enabled
-TIMED_DISPENSE_START_TIME=500	# time of day timed dispense will start when enabled
+TIMED_DISPENSE_START_TIME=600	# time of day timed dispense will start when enabled
 				# (HHMM format, don't use leading zeros)
-TIMED_DISPENSE_END_TIME=1600	# time of day timed dispense will stop when enabled
+TIMED_DISPENSE_END_TIME=1800	# time of day timed dispense will stop when enabled
 				# (HHMM format, don't use leading zeros)
-PBKA_ON_PERIOD=1			# seconds the PBKA will sink current to keep a powerbank on
+PBKA_ON_PERIOD=1		# seconds the PBKA will sink current to keep a powerbank on
 PBKA_OFF_PERIOD=10		# seconds between PBKA current sinks
-DEFAULT_TOGGLE_TIMED_DISPENSE=1   		# set to 1 to enable timer on startup
+DEFAULT_TOGGLE_TIMED_DISPENSE=1 # set to 1 to enable timer on startup
 DEFAULT_TOGGLE_PBKA=0      	# set to 1 to enable PBKA on startup
+
+# Email alert variables
+SMTP_SERVER="<SMTP server address>"	# SMTP server URL
+SMTP_PORT=587 				# port to use 
+SMTP_LOGIN="<email login>"		# SMTP server login
+SMTP_P="<email password>"		# SMTP server pass
+SMTP_SENDER="<email sender address>"	# SMTP sender address
+SMTP_RECEIVER="<email receiver address>"	# SMTP receiver address
 
 # Initialize RPi GPIO
 # GPIO.setmode(GPIO.BOARD)	# uses board pin numbers to reference pins
@@ -165,6 +174,8 @@ def deposit_event(pin=None):
         # If there is something triggering the dispense sensor
         # when a deposit is sensed, log it and don't turn on the motor
         log_event("DEP","DISJAM",pin)
+    # Send email alert
+    #threading.Thread(send_email_alert("Deposit")).start()
     #print("End deposit_event()")
 
 # When a dispense event is detected, turns off the dispense motor
@@ -372,6 +383,28 @@ def toggle_calibration_mode(pin=None):
         event="ENABLED"
     log_event("CAL",event,pin)
     #print("End toggle_calibration_mode()")
+
+# Call this to send an email alerting that an event has occurred
+def send_email_alert(event):
+    ''' Sends an email notifying that an event juts occurred '''
+    log_event("SMTP","SEND",event)
+
+    # Set email subject and message
+    message = "Subject: " + event + " Event at " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " \n\n " + event + " event detected at " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    # Send the email
+    try:
+        server = smtplib.SMTP(SMTP_SERVER,SMTP_PORT)
+        server.ehlo() # Can be omitted
+        server.starttls()
+        server.ehlo() # Can be omitted
+        server.login(SMTP_LOGIN, SMTP_P)
+        server.sendmail(SMTP_SENDER, SMTP_RECEIVER, message)
+    except Exception as e:
+        # Print any error messages to stdout
+        print(e)
+    finally:
+        server.quit()
 
 # Log start of script
 log_event("SCRIPT","START","INIT")
