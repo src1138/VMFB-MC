@@ -175,7 +175,7 @@ def deposit_event(pin=None):
         # when a deposit is sensed, log it and don't turn on the motor
         log_event("DEP","DISJAM",pin)
     # Send email alert
-    #threading.Thread(send_email_alert("Deposit")).start()
+    threading.Thread(target=send_email_alert,args=["DEP"]).start()
     #print("End deposit_event()")
 
 # When a dispense event is detected, turns off the dispense motor
@@ -387,8 +387,6 @@ def toggle_calibration_mode(pin=None):
 # Call this to send an email alerting that an event has occurred
 def send_email_alert(event):
     ''' Sends an email notifying that an event juts occurred '''
-    log_event("SMTP","SEND",event)
-
     # Set email subject and message
     message = "Subject: " + event + " Event at " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")) + " \n\n " + event + " event detected at " + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -405,6 +403,7 @@ def send_email_alert(event):
         print(e)
     finally:
         server.quit()
+    log_event("SMTP","SEND",event)
 
 # Log start of script
 log_event("SCRIPT","START","INIT")
