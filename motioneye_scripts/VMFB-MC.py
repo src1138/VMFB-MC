@@ -5,8 +5,8 @@ import time			# to handle timers
 import threading		# to handle timer and interupt threads
 # import urllib2		# to handle http requests to enable/disable motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
-import RPi.GPIO as GPIO		# for GPIO access
 import smtplib			# for sending event alert emails
+import RPi.GPIO as GPIO		# for GPIO access
 
 # Configuration variables
 SENSOR_IR_TIMEOUT=30		# seconds the sensors stay on after last PIR trigger
@@ -23,7 +23,7 @@ DEFAULT_TOGGLE_PBKA=0      	# set to 1 to enable PBKA on startup
 
 # Email alert variables
 SMTP_SERVER="<SMTP server address>"	# SMTP server URL
-SMTP_PORT=587 				# port to use 
+SMTP_PORT=587 				# port to use
 SMTP_LOGIN="<email login>"		# SMTP server login
 SMTP_P="<email password>"		# SMTP server pass
 SMTP_SENDER="<email sender address>"	# SMTP sender address
