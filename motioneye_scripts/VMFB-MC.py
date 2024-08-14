@@ -416,6 +416,8 @@ def send_email_alert(event):
 
 # Log start of script
 log_event("SCRIPT","START","INIT")
+# Send email alert
+threading.Thread(target=send_email_alert,args=["SCRIPT STARTUP"]).start()
 
 # Initialize MT Sensor state - enable the sensor LEDs, check the sensor, and disable the sensor LEDs
 GPIO.output(SIR,1)
