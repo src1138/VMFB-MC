@@ -3,7 +3,6 @@
 from datetime import datetime	# to handle dates
 import time			# to handle timers
 import threading		# to handle timer and interupt threads
-# import urllib2		# to handle http requests to enable/disable motion detection
 import os 			# needed to execute system commands to start/stop motioneye server
 import smtplib			# for sending event alert emails
 import RPi.GPIO as GPIO		# for GPIO access
@@ -80,13 +79,19 @@ def pir_event(pin=None):
 # When sensors are on, checks the empty sensor and updates the MT_SIG pin state
 # Takes this approach because when the sensor LEDs are off the signal is always low
 def update_mt(pin=None):
-    '''Updates the alue of the empty indicator output pin'''
+    '''Updates the value of the empty indicator output pin'''
     #print("Start update_mt()")
     event=0
     if GPIO.input(MT) == 1:
+        # Send email alert if state is changing
+        if GPIO.input(MT_SIG) == 0:
+            threading.Thread(target=send_email_alert,args=["NOT EMPTY"]).start()
         GPIO.output(MT_SIG,1)
         event=1
     else:
+        # Send email alert if state is changing
+        if GPIO.input(MT_SIG) == 1:
+            threading.Thread(target=send_email_alert,args=["EMPTY"]).start()
         GPIO.output(MT_SIG,0)
     log_event("MT",event,pin)
     #print("End update_mt()")
@@ -208,8 +213,12 @@ def motor_off(pin="TO"):
     #print("Start motor_off()")
     log_event("MTR","OFF",pin)
     GPIO.output(MTR,0)
+    global motor_timer
     if motor_timer.is_alive() is True:
         motor_timer.cancel()
+    if pin == "TO":
+        # Send email alert
+        threading.Thread(target=send_email_alert,args=["DIS TIMEOUT"]).start()
     #print("End motor_off()")
 
 # When a manual dispense event is detected, turns on the sensors and starts the dispense motor
