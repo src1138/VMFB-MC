@@ -148,6 +148,7 @@ def sensor_ir_off(pin="TO"):
         update_mt(pin)
         log_event("SIR","OFF",pin)
         GPIO.output(SIR,0)
+        global sensor_timer
         if sensor_timer.is_alive() is True:
             sensor_timer.cancel()
         if GPIO.input(PBKA) == 1:
@@ -257,6 +258,7 @@ def suspend_timed_dispense(pin=None):
     '''Stops timed dispense until it is toggled back on''' 
     #print("Start suspend_timed_dispense()")
     if GPIO.input(TMR) == 1: # only suspend if TMR is enabled
+        global timed_dispense_timer
         if timed_dispense_timer.is_alive() is True:
             timed_dispense_timer.cancel()
     log_event("TMR","SUSPEND",pin)
@@ -286,8 +288,10 @@ def suspend_pbka(pin=None):
     '''Stops the PBKA until it is toggled back on''' 
     #print("Start suspend_pbka()")
     if GPIO.input(PBKA) == 1: # only suspend if PBKA is enabled
+        global pbka_sink_timer
         if pbka_sink_timer.is_alive() is True:
             pbka_sink_timer.cancel()
+        global pbka_idle_timer
         if pbka_idle_timer.is_alive() is True:
             pbka_idle_timer.cancel()
     log_event("PBKA","SUSPEND",pin)
@@ -308,6 +312,7 @@ def toggle_pbka(pin=None):
         pbka_idle_timer = threading.Timer(PBKA_OFF_PERIOD, pbka_sink)
         pbka_idle_timer.start()
     else:
+        global pbka_sink_timer
         if pbka_sink_timer.is_alive() is True:
             pbka_sink_timer.cancel()
         if pbka_idle_timer.is_alive() is True:
