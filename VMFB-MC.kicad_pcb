@@ -1415,7 +1415,7 @@
     (property "Sheetname" "")
     (property "ki_description" "Low-Power, Low-Offset Voltage, Dual Comparators, DIP-8/SOIC-8/TO-99-8")
     (property "ki_keywords" "cmp open collector")
-    (path "/629b567d-9e5b-445d-a89c-ee9b5da943aa")
+    (path "/d4ff2f1b-c326-40e2-988b-b0f5f9052d4a")
     (attr through_hole)
     (fp_text reference "U1" (at 3.683 10.033) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
