@@ -40,6 +40,7 @@ Motioneye Scripts (go in the /data/etc/ directory)
 - monitor_1 - shows current state of PIR, Empty, Motor, Timed Dispense, PBKA, number of times PIR, Deposit and Dispense are triggered since 00:00 of current day
 - down_1 - overlay button to manually dispense a peanut
 - alarm_on_1 - overlay button to toggle timed dispense
+- zoon_in_1 - overlay button to toggle calibration mode (sensors don't trigger motors)
 - light_on_1 - overlay button to toggle power bank keep-alive
 
 
