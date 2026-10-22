@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Assign pins
+MAN=20 #RPi ZeroW Pin #38
+ 
+# Set the MAN pin to high, then back to low
+pinctrl set $MAN dh
+pinctrl set $MAN dl

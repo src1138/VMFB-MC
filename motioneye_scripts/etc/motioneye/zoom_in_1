@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Assign pins
+CAL=23 #RPi ZeroW Pin #16
+
+#Toggle the PBKA enable pin
+CAL_enable=$(pinctrl lev $CAL)
+
+if [ $CAL_enable -eq "1" ]
+then
+	# disable calibration mode
+	pinctrl set $CAL dl
+else
+	# enable calibration mode
+	pinctrl set $CAL dh
+fi

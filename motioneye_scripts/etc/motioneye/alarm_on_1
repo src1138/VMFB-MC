@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Assign pins
+TMR=12 #RPi ZeroW Pin #32
+
+#Toggle the TMR enable pin
+Timer_enable=$(pinctrl lev $TMR)
+if [ $Timer_enable -eq "1" ] 
+then
+	# disable Timer
+	pinctrl set $TMR dl
+else
+	# enable Timer
+	pinctrl set $TMR dh
+fi

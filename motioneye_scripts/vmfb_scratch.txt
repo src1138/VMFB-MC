@@ -1,0 +1,46 @@
+VMFB scripts: /usr/local/bin
+MotionEye Scripts: /usr/local/lib/python3.11/dist-packages/motioneye/scripts/
+logs: /var/log/vmfb
+action buttons and overlay: /etc/motioneye 
+
+
+When motion event starts:
+echo "0" > /etc/motioneye/dep_flag.txt
+
+When video is recorded:
+if [ $(cat dep_flag.txt)==1 ]; then 
+depfile=$(find /var/lib/motioneye/ -type f -exec ls -t {} + | grep -E '.mp4$' | head -n 1);
+cp -T $depfile  "${depfile%%.*}"_DEP."${depfile##*.}"; fi
+
+create vmfb user, add to video and gpio groups
+make init script autostart on boot as vmfb user
+
+Then rsync for Google Cloud
+
+New features
+- higher resolution 640x480 over 320x240
+- mark videos that contain a deposit event with _DEP
+- nightly upload of videos and logs to a Google Drive folder
+
+Next to add
+HTTPS support (reverse proxy)
+One-click (or suitably simple) backup from Android device using mobile hotspot and scp
+
+To discuss
+
+- no wifi 
+-- user visits and uses phone to connect and download videos and logs from the VMFB with a script to upload to Google Drive, or possibly to just use the phone's connection to upload it - may take a few minutes...
+-- IOT 4G modem - expensive, may complicate electronics and will draw more power.
+
+- no power - solar is an option, but will need an overpowered panel to compensate for winter sun
+
+- public location
+-- should be near area with pedestrian traffic - we need litter
+-- how to protect the device? it is weatherproof but could easily be damaged or stolen - is this a real concern?
+-- should not be far from the user's primary location (home or office) - early training stages require some regular maintenance like placing litter on the platform, refilling peanuts and emptying or reusing deposited litter.
+
+Topics
+Dispense
+Deposit
+PIR
+Camera

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Assign pins
+PBKA=16 #RPi ZeroW Pin #36
+
+#Toggle the PBKA enable pin
+PBKA_enable=$(pinctrl lev $PBKA)
+if [ $PBKA_enable -eq "1" ]
+then
+	# disable PBKA
+	pinctrl set $PBKA dl
+else
+	# enable PBKA
+	pinctrl set $PBKA dh
+fi

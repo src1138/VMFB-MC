@@ -1,0 +1,55 @@
+# For more options and information see
+# http://rptl.io/configtxt
+# Some settings may impact device functionality. See link above for details
+
+# Uncomment some or all of these to enable the optional hardware interfaces
+#dtparam=i2c_arm=on
+#dtparam=i2s=on
+#dtparam=spi=on
+
+# Enable audio (loads snd_bcm2835)
+dtparam=audio=on
+
+# Additional overlays and parameters are documented
+# /boot/firmware/overlays/README
+
+# Automatically load overlays for detected cameras
+camera_auto_detect=1
+
+# Automatically load overlays for detected DSI displays
+display_auto_detect=1
+
+# Automatically load initramfs files, if found
+auto_initramfs=1
+
+# Enable DRM VC4 V3D driver
+dtoverlay=vc4-kms-v3d
+max_framebuffers=2
+
+# Don't have the firmware create an initial video= setting in cmdline.txt.
+# Use the kernel's default instead.
+disable_fw_kms_setup=1
+
+# Disable compensation for displays with overscan
+disable_overscan=1
+
+# Run as fast as firmware / board allows
+arm_boost=1
+
+[cm4]
+# Enable host mode on the 2711 built-in XHCI USB controller.
+# This line should be removed if the legacy DWC2 controller is required
+# (e.g. for USB device mode) or if USB support is not required.
+otg_mode=1
+
+[cm5]
+dtoverlay=dwc2,dr_mode=host
+
+[all]
+# Set gpio pins 4 (MTR), 18 (SIR), 20 (MAN_SIG), 24 (MT_SIG), 12 (TMR_SIG), 16 (PBKA_SIG) and 23 (CAL_SIG) to be outputs 
+# driving low to avoid them staying high on statup
+gpio=4,18,20,24,12,16,23=op,dl
+# Set GPIO pins 17 (MT), 27 (PIR), 26 (MAN), 6 (TMR), 19 (PBKA), 22 (CAL) to be inputs with pull-downs
+gpio=17,27,26,6,19,22=ip,pd
+# Set GPIO pins 14 (Deposit),15 (Dispense) to be inputs with pull-ups for comparators, pull-downs for op amps.
+gpio=14,15=ip,pd

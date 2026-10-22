@@ -1,0 +1,103 @@
+#!/bin/bash
+
+# Set up input pins and check their values
+# Assign pins
+PIR=27 #RPi ZeroW Pin #13
+SIR=18 #RPi ZeroW Pin #12
+MTR=4 #RPi ZeroW Pin #7
+MT=24 #RPi ZeroW Pin #18
+DEP=14 #RPi ZeroW Pin #8
+DIS=15 #RPi ZeroW Pin #10
+PBKA=19 #RPi ZeroW Pin #35
+TMR=6 #RPi ZeroW Pin #31
+CAL=22 #RPi ZeroW Pin #15
+
+# Get the current pin values
+valPIR=$(pinctrl lev $PIR)
+valSIR=$(pinctrl lev $SIR)
+valMTR=$(pinctrl lev $MTR)
+valMT=$(pinctrl lev $MT)
+valDEP=$(pinctrl lev $DEP)
+valDIS=$(pinctrl lev $DIS)
+valPBKA=$(pinctrl lev $PBKA)
+valTMR=$(pinctrl lev $TMR)
+valCAL=$(pinctrl lev $CAL)
+
+# Set the display text for the pin values 
+
+if [ "$valPIR" -eq "1" ]
+then
+    PIR_text="<font color=#CC0000>PIR</font>"
+else
+    PIR_text="PIR"
+fi
+ 
+if [ "$valSIR" -eq "1" ]
+then
+    SIR_text="<font color=#00CC00>SIR</font>"
+else
+    SIR_text="SIR"
+fi
+
+if [ "$valMTR" -eq "1" ]
+then
+    MTR_text="<font color="#00CC00">MTR</font>"
+else
+    MTR_text="MTR"
+fi
+
+# Deposit and Dispense events are too short to catch unless there is a jam
+if [ "$valDIS" -eq "1" ]
+then
+    DIS_text="<font color=#CC0000>DIS</font>"
+else
+    DIS_text="DIS"
+fi
+
+if [ "$valDEP" -eq "1" ]
+then
+    DEP_text="<font color=#CC0000>DEP</font>"
+else
+    DEP_text="DEP"
+fi
+
+if [ "$valMT" -eq "1" ]
+then
+    MT_text=""
+else
+    MT_text="&#129372;"
+fi
+
+if [ "$valTMR" -eq "1" ] 
+then
+	TMR_text="<font color=#00CC00>TMR</font>"
+else
+	TMR_text="TMR"
+fi
+
+if [ "$valPBKA" -eq "1" ] 
+then
+	PBKA_text="&#8767;"
+else
+	PBKA_text=""
+fi
+
+if [ "$valCAL" -eq "1" ]
+then
+	CAL_text="&#128295;"
+else
+	CAL_text=""
+fi
+
+VMFB_logfile="/var/log/vmfb/VMFB_$(date +%F).log"
+touch "$VMFB_logfile"
+PIRcount=$(grep -c 'PIR[[:blank:]]1' $VMFB_logfile)
+DEPcount=$(grep -c 'DEP[[:blank:]]1' $VMFB_logfile)
+DIScount=$(grep -c 'DIS[[:blank:]]1' $VMFB_logfile)
+MANcount=$(grep -c 'MAN[[:blank:]]DISPENSE' $VMFB_logfile)
+TMRcount=$(grep -c 'TMR[[:blank:]]DISPENSE' $VMFB_logfile)
+
+# Output to the UI
+echo "$CAL_text$MT_text$PIR_text<sup>$PIRcount</sup>|$SIR_text<sup>$PBKA_text</sup>|$DEP_text<sup>$DEPcount</sup>|$TMR_text<sup>$TMRcount</sup>|MAN<sup>$MANcount</sup>|$DIS_text<sup>$DIScount</sup>|$MTR_text"
+# 1 second delay between executions
+echo 1 1>&2
