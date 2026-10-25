@@ -84,14 +84,14 @@ def update_mt(pin=None):
     event=0
     if GPIO.input(MT) == 1:
         # Send email alert if state is changing
-        if GPIO.input(MT_SIG) == 0:
-            threading.Thread(target=send_email_alert,args=["NOT EMPTY"]).start()
+        #if GPIO.input(MT_SIG) == 0:
+        #    threading.Thread(target=send_email_alert,args=["NOT EMPTY"]).start()
         GPIO.output(MT_SIG,1)
         event=1
     else:
         # Send email alert if state is changing
-        if GPIO.input(MT_SIG) == 1:
-            threading.Thread(target=send_email_alert,args=["EMPTY"]).start()
+        #if GPIO.input(MT_SIG) == 1:
+        #    threading.Thread(target=send_email_alert,args=["EMPTY"]).start()
         GPIO.output(MT_SIG,0)
     log_event("MT",event,pin)
     #print("End update_mt()")
@@ -180,8 +180,10 @@ def deposit_event(pin=None):
         # If there is something triggering the dispense sensor
         # when a deposit is sensed, log it and don't turn on the motor
         log_event("DEP","DISJAM",pin)
+    # Set deposit flag
+    os.system('echo "1" > /etc/motioneye/dep_flag.txt')
     # Send email alert
-    threading.Thread(target=send_email_alert,args=["DEP"]).start()
+    #threading.Thread(target=send_email_alert,args=["DEP"]).start()
     #print("End deposit_event()")
 
 # When a dispense event is detected, turns off the dispense motor
@@ -217,9 +219,9 @@ def motor_off(pin="TO"):
     global motor_timer
     if motor_timer.is_alive() is True:
         motor_timer.cancel()
-    if pin == "TO":
+    #if pin == "TO":
         # Send email alert
-        threading.Thread(target=send_email_alert,args=["DIS TIMEOUT"]).start()
+        #threading.Thread(target=send_email_alert,args=["DIS TIMEOUT"]).start()
     #print("End motor_off()")
 
 # When a manual dispense event is detected, turns on the sensors and starts the dispense motor
@@ -422,7 +424,7 @@ def send_email_alert(event):
 # Log start of script
 log_event("SCRIPT","START","INIT")
 # Send email alert
-threading.Thread(target=send_email_alert,args=["SCRIPT STARTUP"]).start()
+#threading.Thread(target=send_email_alert,args=["SCRIPT STARTUP"]).start()
 
 # Initialize MT Sensor state - enable the sensor LEDs, check the sensor, and disable the sensor LEDs
 GPIO.output(SIR,1)
@@ -454,6 +456,10 @@ if DEFAULT_TOGGLE_TIMED_DISPENSE == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(TMR_SIG)+'/value')
 if DEFAULT_TOGGLE_PBKA == 1:
     os.system('echo "1" >| /sys/class/gpio/gpio'+str(PBKA_SIG)+'/value')
+
+# Make sure motion detection is off and end any recording
+#os.system('curl http://localhost:7999/1/detection/pause')
+#os.system('curl http://localhost:7999/1/action/eventend')
 
 # Everything is interrupt- and timer-based, so script
 # sleeps until an interrupt or timer calls a function
