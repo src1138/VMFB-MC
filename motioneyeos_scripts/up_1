@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mount -o remount,rw /
+rclone copy /data/output/Camera1 vmfb_gdrive:/VMFB_2026-2027_Trial/Testing/Videos --include "*.mp4" --local-no-check-updated --config /root/.config/rclone/rclone.conf 
+rclone copy /data/log vmfb_gdrive:/VMFB_2026-2027_Trial/Testing/Logs --local-no-check-updated --config /root/.config/rclone/rclone.conf 
